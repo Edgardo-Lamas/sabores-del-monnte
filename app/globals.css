@@ -161,3 +161,42 @@ a:hover {
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(200, 121, 58, 0.15);
 }
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+/* Skip to content — visible only on keyboard focus */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--color-amber);
+  color: var(--color-base);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0 0 4px 4px;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.skip-to-content:focus {
+  top: 0;
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Focus visible — amber ring en todos los interactivos */
+:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Suprimir outline para mouse/touch (solo teclado) */
+:focus:not(:focus-visible) {
+  outline: none;
+}

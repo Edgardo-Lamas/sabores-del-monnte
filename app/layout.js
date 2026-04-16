@@ -1,4 +1,5 @@
 import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 
@@ -7,6 +8,7 @@ const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   display: "swap",
+  preload: true,
 });
 
 const inter = Inter({
@@ -14,28 +16,26 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
+  preload: true,
 });
 
+/* ─── Default metadata (overridden per-route) ─── */
 export const metadata = {
-  title: "Sabores de Monte — Miel artesanal de Córdoba",
+  metadataBase: new URL("https://saboresdemonte.com.ar"),
+  title: {
+    default:  "Sabores de Monte | Miel artesanal mayorista | Obispo Trejo, Córdoba",
+    template: "%s | Sabores de Monte",
+  },
   description:
-    "Productora apícola artesanal de Obispo Trejo, Córdoba. Miel pura, propóleo y productos de la colmena para distribuidores, restaurantes, hoteles y tiendas gourmet.",
-  keywords: [
-    "miel artesanal",
-    "productora apícola",
-    "Córdoba",
-    "Obispo Trejo",
-    "miel pura",
-    "B2B",
-    "distribuidores",
-    "gourmet",
-  ],
+    "Productora apícola artesanal de Obispo Trejo, Córdoba. Miel pura, aceite de oliva y sal artesanal para distribuidores, restaurantes, hoteles y tiendas gourmet.",
   openGraph: {
-    title: "Sabores de Monte — Miel artesanal de Córdoba",
-    description:
-      "Productora apícola artesanal. Miel pura y productos de la colmena para el canal mayorista.",
+    siteName: "Sabores de Monte",
     locale: "es_AR",
     type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -46,8 +46,18 @@ export default function RootLayout({ children }) {
       className={`${cormorant.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* ─── Skip to content (accesibilidad) ─── */}
+        <a href="#main-content" className="skip-to-content">
+          Ir al contenido principal
+        </a>
+
         <Navbar />
-        <main className="flex-1">{children}</main>
+
+        <main id="main-content" className="flex-1" tabIndex={-1}>
+          {children}
+        </main>
+
+        <Analytics />
       </body>
     </html>
   );

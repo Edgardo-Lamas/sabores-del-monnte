@@ -6,6 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Loader2 } from "lucide-react";
+import { track } from "@vercel/analytics";
 
 /* ─── Zod schema ─── */
 
@@ -94,6 +95,12 @@ export default function SolicitudForm() {
         const json = await res.json().catch(() => ({}));
         throw new Error(json.error || "Error al enviar la solicitud");
       }
+
+      track("solicitud_mayorista_enviada", {
+        tipoNegocio: data.tipoNegocio,
+        volumen:     data.volumen,
+        provincia:   data.provincia,
+      });
 
       setSubmitted(true);
     } catch (err) {

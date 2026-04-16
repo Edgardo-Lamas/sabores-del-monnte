@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { Lock } from "lucide-react";
+import { PRODUCT_BLUR_URL } from "@/lib/blur-placeholder";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -13,7 +15,7 @@ const cardVariants = {
   },
 };
 
-export default function ProductCard({ product, index = 0 }) {
+export default function ProductCard({ product }) {
   return (
     <motion.div
       variants={cardVariants}
@@ -22,21 +24,19 @@ export default function ProductCard({ product, index = 0 }) {
         background: "#1A1510",
         border: "1px solid rgba(200, 121, 58, 0.15)",
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "rgba(200, 121, 58, 0.5)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "rgba(200, 121, 58, 0.15)";
-      }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(200, 121, 58, 0.5)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(200, 121, 58, 0.15)"; }}
     >
       {/* ─── Image ─── */}
       <div className="relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
-        {/* Placeholder gradient — will be replaced with real images */}
-        <div
-          className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-          style={{
-            background: getPlaceholderGradient(product.categoria),
-          }}
+        <Image
+          src={product.imagen}
+          alt={product.imageAlt ?? product.nombre}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+          placeholder="blur"
+          blurDataURL={PRODUCT_BLUR_URL}
         />
 
         {/* Badge */}
@@ -57,9 +57,7 @@ export default function ProductCard({ product, index = 0 }) {
         {/* Bottom gradient overlay */}
         <div
           className="absolute bottom-0 left-0 right-0 h-24 z-[1] pointer-events-none"
-          style={{
-            background: "linear-gradient(to bottom, transparent, #1A1510)",
-          }}
+          style={{ background: "linear-gradient(to bottom, transparent, #1A1510)" }}
         />
       </div>
 
@@ -76,16 +74,12 @@ export default function ProductCard({ product, index = 0 }) {
         {/* Name */}
         <div
           className="text-white-soft text-lg mb-2 group-hover:text-gold transition-colors duration-300"
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontWeight: 500,
-            lineHeight: 1.25,
-          }}
+          style={{ fontFamily: "var(--font-heading)", fontWeight: 500, lineHeight: 1.25 }}
         >
           {product.nombre}
         </div>
 
-        {/* Description — truncated to 2 lines */}
+        {/* Description */}
         <p
           className="text-cream/60 text-sm mb-4 leading-relaxed"
           style={{
@@ -118,14 +112,14 @@ export default function ProductCard({ product, index = 0 }) {
           ))}
         </div>
 
-        {/* Spacer */}
         <div className="flex-1" />
 
         {/* Price lock notice */}
-        <div className="flex items-center gap-2 mb-4 py-2.5 px-3 rounded-[3px]"
+        <div
+          className="flex items-center gap-2 mb-4 py-2.5 px-3 rounded-[3px]"
           style={{ background: "rgba(200, 121, 58, 0.06)" }}
         >
-          <Lock size={13} className="text-amber/50 shrink-0" />
+          <Lock size={13} className="text-amber/50 shrink-0" aria-hidden="true" />
           <span
             className="text-cream/40 text-[11px] leading-tight"
             style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
@@ -137,7 +131,7 @@ export default function ProductCard({ product, index = 0 }) {
         {/* CTA */}
         <Link
           href={`/productos/${product.id}`}
-          className="inline-flex items-center justify-center w-full py-2.5 text-sm text-amber border rounded-[4px] hover:bg-amber hover:text-base transition-all duration-300"
+          className="inline-flex items-center justify-center w-full py-2.5 text-sm text-amber border rounded-[4px] hover:bg-amber hover:text-base transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           style={{
             fontFamily: "var(--font-body)",
             fontWeight: 500,
@@ -149,20 +143,4 @@ export default function ProductCard({ product, index = 0 }) {
       </div>
     </motion.div>
   );
-}
-
-/**
- * Placeholder gradients per category until real product images are added.
- */
-function getPlaceholderGradient(categoria) {
-  switch (categoria) {
-    case "miel":
-      return "linear-gradient(160deg, #3D2A10 0%, #C8793A 40%, #8B5E2F 70%, #1A1510 100%)";
-    case "aceite":
-      return "linear-gradient(160deg, #2A3320 0%, #7A8C6E 40%, #4A5A3A 70%, #1A1510 100%)";
-    case "sal":
-      return "linear-gradient(160deg, #2A2520 0%, #E2D0A8 30%, #8A7A60 70%, #1A1510 100%)";
-    default:
-      return "linear-gradient(160deg, #2A1F12 0%, #C8793A 50%, #1A1510 100%)";
-  }
 }
