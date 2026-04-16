@@ -2,13 +2,13 @@
 
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { products, categories } from "@/lib/products";
+import { products, categories, categoryLabels } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 
 const containerVariants = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.1 },
+    transition: { staggerChildren: 0.08 },
   },
 };
 
@@ -21,7 +21,17 @@ const fadeIn = {
   }),
 };
 
-export default function ProductosPage() {
+/* Group products by category preserving declaration order */
+function groupByCategory(productList) {
+  const groups = {};
+  for (const p of productList) {
+    if (!groups[p.categoria]) groups[p.categoria] = [];
+    groups[p.categoria].push(p);
+  }
+  return groups;
+}
+
+export default function ProductosClient() {
   const [activeFilter, setActiveFilter] = useState("todos");
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: "-40px" });
@@ -30,6 +40,8 @@ export default function ProductosPage() {
     activeFilter === "todos"
       ? products
       : products.filter((p) => p.categoria === activeFilter);
+
+  const grouped = activeFilter === "todos" ? groupByCategory(filteredProducts) : null;
 
   return (
     <>
@@ -108,7 +120,9 @@ export default function ProductosPage() {
                       ? "rgba(200, 121, 58, 0.9)"
                       : "rgba(200, 121, 58, 0.08)",
                   color:
-                    activeFilter === cat.value ? "#0D0A06" : "rgba(226, 208, 168, 0.7)",
+                    activeFilter === cat.value
+                      ? "#0D0A06"
+                      : "rgba(226, 208, 168, 0.7)",
                   border:
                     activeFilter === cat.value
                       ? "1px solid transparent"
@@ -122,31 +136,79 @@ export default function ProductosPage() {
         </div>
       </section>
 
-      {/* ─── Products Grid ─── */}
+      {/* ─── Products ─── */}
       <section
         className="relative pb-24"
         style={{ background: "var(--color-base)" }}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <motion.div
-            key={activeFilter}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {filteredProducts.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
-          </motion.div>
 
-          {/* Empty state */}
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-20">
-              <p className="text-cream/40 text-sm">
-                No hay productos en esta categoría.
-              </p>
-            </div>
+          {/* ── Grouped view (Todos) ── */}
+          {grouped ? (
+            Object.entries(grouped).map(([categoria, items], groupIndex) => (
+              <div key={categoria} className={groupIndex > 0 ? "mt-16" : ""}>
+                {/* Category heading */}
+                <div className="flex items-center gap-4 mb-8">
+                  <h2
+                    className="text-white-soft"
+                    style={{
+                      fontFamily: "var(--font-heading)",
+                      fontWeight: 300,
+                      fontSize: "clamp(1.5rem, 2.5vw, 2rem)",
+                    }}
+                  >
+                    {categoryLabels[categoria] ?? categoria}
+                  </h2>
+                  <div
+                    className="flex-1 h-px"
+                    style={{ background: "rgba(200, 121, 58, 0.15)" }}
+                  />
+                  <span
+                    className="text-amber/50 text-xs tracking-[0.2em] uppercase shrink-0"
+                    style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
+                  >
+                    {items.length} {items.length === 1 ? "producto" : "productos"}
+                  </span>
+                </div>
+
+                {/* Grid */}
+                <motion.div
+                  key={categoria}
+                  variants={containerVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-60px" }}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                >
+                  {items.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </motion.div>
+              </div>
+            ))
+          ) : (
+            /* ── Filtered view (single category) ── */
+            <>
+              <motion.div
+                key={activeFilter}
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              >
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </motion.div>
+
+              {filteredProducts.length === 0 && (
+                <div className="text-center py-20">
+                  <p className="text-cream/40 text-sm">
+                    No hay productos en esta categoría.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
