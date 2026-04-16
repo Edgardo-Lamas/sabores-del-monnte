@@ -163,6 +163,98 @@ a:hover {
 }
 
 /* ============================================
+   Scroll Reveal — IntersectionObserver
+   ============================================ */
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 600ms ease-out, transform 600ms ease-out;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-revealed] .reveal-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero load animations (no scroll needed) */
+@keyframes fadeUpIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-fade-up {
+  animation: fadeUpIn 600ms ease-out both;
+  animation-delay: var(--hero-delay, 0ms);
+}
+
+/* Card lift on hover */
+.card-lift {
+  transition: transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  border-color: rgba(200, 121, 58, 0.6) !important;
+}
+
+/* Buttons — /nosotros */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  background: #C8793A;
+  color: #0D0A06;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background 250ms ease;
+  text-decoration: none;
+}
+.btn-primary:hover  { background: #B56A2E; color: #0D0A06; }
+.btn-primary:focus-visible {
+  outline: 2px solid #E2D0A8;
+  outline-offset: 3px;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  background: transparent;
+  color: rgba(245, 240, 232, 0.85);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  border: 1.5px solid rgba(245, 240, 232, 0.4);
+  cursor: pointer;
+  transition: border-color 250ms ease, color 250ms ease;
+  text-decoration: none;
+}
+.btn-outline:hover  { border-color: #F5F0E8; color: #F5F0E8; }
+.btn-outline:focus-visible {
+  outline: 2px solid #E2D0A8;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-up {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .hero-fade-up {
+    animation: none;
+  }
+}
+
+/* ============================================
    Accessibility
    ============================================ */
 

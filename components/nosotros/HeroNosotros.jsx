@@ -1,21 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import { PRODUCT_BLUR_URL } from "@/lib/blur-placeholder";
 
 /* IMAGE: colocar en /public/nosotros/hero-apiario.webp */
 const HERO_IMAGE = "/nosotros/hero-apiario.webp";
-const HAS_IMAGE = false; // → cambiar a true cuando la imagen esté en /public/nosotros/
-
-const fadeIn = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (d = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.65, ease: "easeOut", delay: d },
-  }),
-};
+const HAS_IMAGE  = false; // → true cuando la imagen esté en /public/nosotros/
 
 export default function HeroNosotros() {
   return (
@@ -33,7 +23,7 @@ export default function HeroNosotros() {
         }}
       />
 
-      {/* Background image — se activa cuando HAS_IMAGE = true */}
+      {/* Background image — activo cuando HAS_IMAGE = true */}
       {HAS_IMAGE && (
         <Image
           src={HERO_IMAGE}
@@ -48,12 +38,12 @@ export default function HeroNosotros() {
         />
       )}
 
-      {/* Dark overlay */}
+      {/* Overlay: from #0D0A06 → #0D0A06/60 → transparent */}
       <div
         className="absolute inset-0 z-[2] pointer-events-none"
         style={{
           background:
-            "linear-gradient(180deg, rgba(13,10,6,0.5) 0%, rgba(13,10,6,0.55) 50%, rgba(13,10,6,0.9) 100%)",
+            "linear-gradient(180deg, #0D0A06 0%, rgba(13,10,6,0.6) 50%, transparent 100%)",
         }}
       />
 
@@ -62,52 +52,51 @@ export default function HeroNosotros() {
         className="absolute z-[2] w-[500px] h-[500px] rounded-full opacity-[0.06] blur-[100px] pointer-events-none"
         style={{
           background: "radial-gradient(circle, #C8793A, transparent 70%)",
-          top: "15%",
-          left: "50%",
-          transform: "translateX(-50%)",
+          top: "15%", left: "50%", transform: "translateX(-50%)",
         }}
       />
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-3xl mx-auto pt-32 pb-24">
-        <motion.p
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          custom={0.1}
-          className="text-amber text-xs tracking-[0.3em] uppercase mb-6"
-          style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
+
+        <p
+          className="hero-fade-up text-amber uppercase mb-6"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontWeight: 500,
+            fontSize: "12px",
+            letterSpacing: "0.18em",
+            "--hero-delay": "100ms",
+          }}
         >
           Sobre Nosotros · Obispo Trejo, Córdoba
-        </motion.p>
+        </p>
 
-        <motion.h1
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          custom={0.25}
-          className="text-white-soft mb-6 leading-[1.1]"
+        <h1
+          className="hero-fade-up text-white-soft mb-6"
           style={{
             fontFamily: "var(--font-heading)",
             fontWeight: 300,
-            fontSize: "clamp(2.5rem, 5.5vw, 4.5rem)",
+            fontSize: "clamp(2.5rem, 6vw, 5rem)",
+            lineHeight: "0.95",
+            letterSpacing: "-0.02em",
+            "--hero-delay": "250ms",
           }}
         >
-          {/* [[TITULAR HERO: conexión productor-cliente B2B, máximo 10 palabras]] */}
           Producción apícola directa,
           <br />
-          <span style={{ color: "var(--color-amber, #C8793A)" }}>
+          <span style={{ color: "#C8793A" }}>
             sin eslabones de por medio
           </span>
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          custom={0.4}
-          className="text-cream/70 text-lg leading-relaxed max-w-xl mx-auto"
-          style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
+        <p
+          className="hero-fade-up text-cream/70 text-lg leading-relaxed max-w-xl mx-auto"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontWeight: 400,
+            "--hero-delay": "420ms",
+          }}
         >
           {/* [[BAJADA: qué somos en lenguaje B2B, sin poesía]] */}
           Productores apícolas en Obispo Trejo con más de{" "}
@@ -116,7 +105,7 @@ export default function HeroNosotros() {
           </strong>
           . Proveemos miel y productos gourmet al canal mayorista con precio
           de origen y trato directo.
-        </motion.p>
+        </p>
       </div>
 
       {/* Bottom fade */}
