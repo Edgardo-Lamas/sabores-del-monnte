@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 /* ─── Lazy load below-fold sections ─── */
 const ValueProposition  = dynamic(() => import("@/components/ValueProposition"));
 const ProductsShowcase  = dynamic(() => import("@/components/ProductsShowcase"));
+const BenefitsShowcase  = dynamic(() => import("@/components/BenefitsShowcase"));
 
 /* ─── Page metadata ─── */
 export const metadata = {
@@ -90,6 +91,7 @@ export default function Home() {
       <Hero />
       <ValueProposition />
       <ProductsShowcase />
+      <BenefitsShowcase />
     </>
   );
 }
