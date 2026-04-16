@@ -36,18 +36,20 @@ const bounce = {
 export default function Hero() {
   return (
     <section className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* ─── Background layer ─── */}
-      {/*
-        When the real image is ready, uncomment <Image> and remove the gradient div.
-        <Image
-          src="/images/hero-colmenas.webp"
-          alt="Colmenas en el monte cordobés"
-          fill
-          priority
-          className="object-cover"
-          quality={85}
-        />
-      */}
+      {/* ─── Video de fondo ─── */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        aria-hidden="true"
+        className="absolute inset-0 z-0 w-full h-full object-cover"
+        style={{ filter: "brightness(0.55)" }}
+      >
+        <source src="/video/miel.mp4" type="video/mp4" />
+      </video>
+
+      {/* Fallback gradient si el video no carga */}
       <div
         className="absolute inset-0 z-0"
         style={{
