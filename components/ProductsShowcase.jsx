@@ -8,18 +8,11 @@ import { ArrowRight } from "lucide-react";
 import { products, categoryLabels } from "@/lib/products";
 import { PRODUCT_BLUR_URL } from "@/lib/blur-placeholder";
 
-/* One featured product per category — first in each group */
+/* Featured product IDs — best representative of each category */
+const FEATURED_IDS = ["miel-multifloral", "sal-original", "aceite-oliva-unico"];
+
 function getFeatured() {
-  const seen = new Set();
-  const result = [];
-  for (const p of products) {
-    if (!seen.has(p.categoria)) {
-      seen.add(p.categoria);
-      result.push(p);
-    }
-    if (result.length === 3) break;
-  }
-  return result;
+  return FEATURED_IDS.map((id) => products.find((p) => p.id === id)).filter(Boolean);
 }
 
 const featured = getFeatured();
@@ -28,7 +21,7 @@ const featured = getFeatured();
 const catTaglines = {
   miel:        "Sin pasteurizar · Extracción propia · Monte cordobés",
   sal:         "Blends artesanales · Sin TACC · Para gastronomía",
-  "ajo-aceite":"Virgen Extra · Ajo deshidratado · Sin aditivos",
+  "ajo-aceite":"Ajo Negro · Antioxidante · Sabor dulce y umami",
 };
 
 const fadeIn = {
