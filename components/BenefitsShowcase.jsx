@@ -18,7 +18,7 @@ import { PRODUCT_BLUR_URL } from "@/lib/blur-placeholder";
 const LINES = [
   {
     id:       "miel",
-    imagen:   "/img/miel/miel-1.png",          // → reemplazar con beneficios-miel.jpg
+    imagen:   "/img/beneficios/beneficios-miel.png",
     imageAlt: "Beneficios de la Miel Artesanal Sabores de Monte",
     label:    "Miel Artesanal",
     titulo:   "Miel que conserva todo lo que la naturaleza puso en ella",
@@ -30,7 +30,7 @@ const LINES = [
   },
   {
     id:       "sal",
-    imagen:   "/img/sal/sal-1.png",            // → reemplazar con beneficios-sal.jpg
+    imagen:   "/img/beneficios/beneficios-sal.png",
     imageAlt: "Beneficios de las Sales Artesanales Sabores de Monte",
     label:    "Sales Artesanales",
     titulo:   "Blends artesanales que hacen la diferencia en la cocina",
@@ -42,7 +42,7 @@ const LINES = [
   },
   {
     id:       "ajo-aceite",
-    imagen:   "/img/Ajo en Polvo/beneficio-ajo-1.png", // → reemplazar con beneficios-ajo-negro.jpg
+    imagen:   "/img/beneficios/beneficios-ajo-negro.png",
     imageAlt: "Beneficios del Ajo Negro y Aceite de Oliva Sabores de Monte",
     label:    "Ajo Negro & Aceite de Oliva",
     titulo:   "El ingrediente que los mejores chefs ya descubrieron",
