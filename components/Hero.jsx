@@ -36,6 +36,15 @@ const bounce = {
 export default function Hero() {
   return (
     <section className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+      {/* Fallback gradient (debajo del video) */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 120% 80% at 50% 40%, #2A1F12 0%, #1A1510 40%, #0D0A06 100%)",
+        }}
+      />
+
       {/* ─── Video de fondo ─── */}
       <video
         autoPlay
@@ -48,15 +57,6 @@ export default function Hero() {
       >
         <source src="/video/miel-opt.mp4" type="video/mp4" />
       </video>
-
-      {/* Fallback gradient si el video no carga */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 120% 80% at 50% 40%, #2A1F12 0%, #1A1510 40%, #0D0A06 100%)",
-        }}
-      />
 
       {/* Subtle texture noise */}
       <div
