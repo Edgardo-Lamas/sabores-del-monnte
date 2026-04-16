@@ -46,7 +46,7 @@ export default function Hero() {
         className="absolute inset-0 z-0 w-full h-full object-cover"
         style={{ filter: "brightness(0.55)" }}
       >
-        <source src="/video/miel.mp4" type="video/mp4" />
+        <source src="/video/miel-opt.mp4" type="video/mp4" />
       </video>
 
       {/* Fallback gradient si el video no carga */}
