@@ -2,6 +2,7 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-heading",
@@ -57,6 +58,7 @@ export default function RootLayout({ children }) {
           {children}
         </main>
 
+        <ConditionalFooter />
         <Analytics />
       </body>
     </html>
