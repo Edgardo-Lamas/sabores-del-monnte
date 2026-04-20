@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
+import Providers from "@/components/Providers";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-heading",
@@ -52,13 +53,15 @@ export default function RootLayout({ children }) {
           Ir al contenido principal
         </a>
 
-        <Navbar />
+        <Providers>
+          <Navbar />
 
-        <main id="main-content" className="flex-1" tabIndex={-1}>
-          {children}
-        </main>
+          <main id="main-content" className="flex-1" tabIndex={-1}>
+            {children}
+          </main>
 
-        <ConditionalFooter />
+          <ConditionalFooter />
+        </Providers>
         <Analytics />
       </body>
     </html>

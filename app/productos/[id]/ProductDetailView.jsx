@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,12 +8,12 @@ import {
   ArrowLeft,
   Leaf, Shield, Zap, Heart, Droplets, Award,
   ChefHat, Flame, Star, ShieldCheck, Package,
-  Lock,
+  Plus, Minus, ShoppingBag,
 } from "lucide-react";
 import { PRODUCT_BLUR_URL } from "@/lib/blur-placeholder";
 import { categoryLabels } from "@/lib/products";
+import { useCart } from "@/lib/cart-context";
 
-/* ─── Icon map — keys match icono strings in lib/products.js ─── */
 const ICONS = {
   Leaf, Shield, Zap, Heart, Droplets, Award,
   ChefHat, Flame, Star, ShieldCheck, Package,
@@ -21,21 +22,31 @@ const ICONS = {
 const fadeIn = {
   hidden: { opacity: 0, y: 24 },
   visible: (d = 0) => ({
-    opacity: 1,
-    y: 0,
+    opacity: 1, y: 0,
     transition: { duration: 0.55, ease: "easeOut", delay: d },
   }),
 };
 
 export default function ProductDetailView({ product }) {
   const catLabel = categoryLabels[product.categoria] ?? product.categoria;
+  const { addItem } = useCart();
+
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const [qty, setQty]                 = useState(1);
+  const [added, setAdded]             = useState(false);
+
+  const pres = product.presentaciones[selectedIdx];
+
+  function handleAdd() {
+    for (let i = 0; i < qty; i++) addItem(product, pres);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  }
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "var(--color-base)" }}
-    >
-      {/* ─── Ambient glow ─── */}
+    <div className="min-h-screen" style={{ background: "var(--color-base)" }}>
+
+      {/* Ambient glow */}
       <div
         className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] opacity-[0.04] blur-[120px] pointer-events-none z-0"
         style={{ background: "radial-gradient(circle, #C8793A, transparent 70%)" }}
@@ -43,7 +54,7 @@ export default function ProductDetailView({ product }) {
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8 pt-28 pb-24">
 
-        {/* ─── Back link ─── */}
+        {/* Back */}
         <motion.div variants={fadeIn} initial="hidden" animate="visible" custom={0}>
           <Link
             href="/productos"
@@ -55,16 +66,11 @@ export default function ProductDetailView({ product }) {
           </Link>
         </motion.div>
 
-        {/* ─── Main grid ─── */}
+        {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
-          {/* ── Left — Image ── */}
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-            custom={0.1}
-          >
+          {/* Image */}
+          <motion.div variants={fadeIn} initial="hidden" animate="visible" custom={0.1}>
             <div
               className="relative w-full overflow-hidden rounded-[4px]"
               style={{
@@ -83,8 +89,6 @@ export default function ProductDetailView({ product }) {
                 blurDataURL={PRODUCT_BLUR_URL}
                 priority
               />
-
-              {/* Badge */}
               {product.badge && (
                 <div
                   className="absolute top-4 left-4 z-10 px-3 py-1 rounded-[3px] text-[11px] tracking-wide uppercase"
@@ -101,9 +105,8 @@ export default function ProductDetailView({ product }) {
             </div>
           </motion.div>
 
-          {/* ── Right — Info ── */}
+          {/* Info + compra */}
           <div>
-            {/* Category + name */}
             <motion.div variants={fadeIn} initial="hidden" animate="visible" custom={0.2}>
               <p
                 className="text-amber/70 text-xs tracking-[0.25em] uppercase mb-3"
@@ -123,13 +126,9 @@ export default function ProductDetailView({ product }) {
               </h1>
             </motion.div>
 
-            {/* Long description */}
             <motion.p
-              variants={fadeIn}
-              initial="hidden"
-              animate="visible"
-              custom={0.3}
-              className="text-cream/70 leading-relaxed mb-8"
+              variants={fadeIn} initial="hidden" animate="visible" custom={0.3}
+              className="text-cream/70 leading-relaxed mb-6"
               style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
             >
               {product.descripcionLarga}
@@ -137,113 +136,149 @@ export default function ProductDetailView({ product }) {
 
             {/* Origen */}
             <motion.div
-              variants={fadeIn}
-              initial="hidden"
-              animate="visible"
-              custom={0.35}
+              variants={fadeIn} initial="hidden" animate="visible" custom={0.35}
               className="flex items-center gap-2 mb-8"
             >
-              <span
-                className="text-amber/50 text-[11px] tracking-[0.2em] uppercase"
-                style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
-              >
+              <span className="text-amber/50 text-[11px] tracking-[0.2em] uppercase"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
                 Origen
               </span>
-              <div
-                className="h-px flex-1 max-w-[40px]"
-                style={{ background: "rgba(200,121,58,0.2)" }}
-              />
-              <span
-                className="text-cream/55 text-sm"
-                style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
-              >
+              <div className="h-px flex-1 max-w-[40px]" style={{ background: "rgba(200,121,58,0.2)" }} />
+              <span className="text-cream/55 text-sm"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}>
                 {product.origen}
               </span>
             </motion.div>
 
-            {/* Presentaciones */}
+            {/* ─── Bloque de compra ─── */}
             <motion.div
-              variants={fadeIn}
-              initial="hidden"
-              animate="visible"
-              custom={0.4}
-              className="mb-10"
+              variants={fadeIn} initial="hidden" animate="visible" custom={0.4}
+              className="p-5 rounded-[4px] mb-6"
+              style={{ background: "#1A1510", border: "1px solid rgba(200,121,58,0.18)" }}
             >
-              <p
-                className="text-amber/50 text-[11px] tracking-[0.2em] uppercase mb-3"
-                style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
-              >
-                Presentaciones disponibles
+              {/* Selector de presentación */}
+              <p className="text-amber/50 text-[11px] tracking-[0.2em] uppercase mb-3"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                Presentación
               </p>
-              <div className="flex flex-wrap gap-2">
-                {product.presentaciones.map((p) => (
-                  <span
-                    key={p}
-                    className="px-4 py-1.5 text-sm text-cream/70 rounded-[3px]"
+              <div className="flex flex-wrap gap-2 mb-5">
+                {product.presentaciones.map((p, i) => (
+                  <button
+                    key={p.label}
+                    onClick={() => { setSelectedIdx(i); setQty(1); }}
+                    className="px-4 py-1.5 text-sm rounded-[3px] transition-all duration-200"
                     style={{
                       fontFamily: "var(--font-body)",
                       fontWeight: 500,
-                      background: "rgba(200, 121, 58, 0.08)",
-                      border: "1px solid rgba(200, 121, 58, 0.18)",
+                      background: selectedIdx === i ? "rgba(200,121,58,0.18)" : "transparent",
+                      border: selectedIdx === i
+                        ? "1px solid rgba(200,121,58,0.6)"
+                        : "1px solid rgba(200,121,58,0.18)",
+                      color: selectedIdx === i ? "#F0A835" : "rgba(226,208,168,0.6)",
                     }}
                   >
-                    {p}
-                  </span>
+                    {p.label}
+                  </button>
                 ))}
               </div>
-            </motion.div>
 
-            {/* Price lock notice */}
-            <motion.div
-              variants={fadeIn}
-              initial="hidden"
-              animate="visible"
-              custom={0.45}
-              className="flex items-center gap-3 py-3 px-4 rounded-[4px] mb-8"
-              style={{ background: "rgba(200, 121, 58, 0.06)", border: "1px solid rgba(200,121,58,0.1)" }}
-            >
-              <Lock size={14} className="text-amber/50 shrink-0" aria-hidden="true" />
-              <p
-                className="text-cream/45 text-sm"
-                style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
-              >
-                Precios mayoristas disponibles para cuentas aprobadas.{" "}
-                <Link
-                  href="/acceso-mayorista"
-                  className="text-amber/70 hover:text-amber transition-colors duration-200 underline underline-offset-2"
+              {/* Precios */}
+              <div className="flex gap-4 mb-5">
+                <div>
+                  <p className="text-cream/40 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                    style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                    Precio B2B
+                  </p>
+                  <p className="text-cream/80 text-xl"
+                    style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
+                    ${pres.precioBase.toLocaleString("es-AR")}
+                  </p>
+                </div>
+                <div className="w-px self-stretch" style={{ background: "rgba(200,121,58,0.15)" }} />
+                <div>
+                  <p className="text-amber/70 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                    style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                    Precio Comunidad
+                  </p>
+                  <p className="text-amber text-xl"
+                    style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
+                    ${pres.precioMayorista.toLocaleString("es-AR")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Cantidad + agregar */}
+              <div className="flex items-center gap-3">
+                {/* Qty */}
+                <div
+                  className="flex items-center gap-0 rounded-[4px] overflow-hidden shrink-0"
+                  style={{ border: "1px solid rgba(200,121,58,0.3)" }}
                 >
+                  <button
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    className="w-9 h-10 flex items-center justify-center transition-colors duration-200"
+                    style={{ color: "#C8793A" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(200,121,58,0.12)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                    aria-label="Reducir cantidad"
+                  >
+                    <Minus size={13} />
+                  </button>
+                  <span
+                    className="w-9 h-10 flex items-center justify-center text-cream text-sm"
+                    style={{ fontFamily: "var(--font-body)", fontWeight: 600, borderLeft: "1px solid rgba(200,121,58,0.2)", borderRight: "1px solid rgba(200,121,58,0.2)" }}
+                  >
+                    {qty}
+                  </span>
+                  <button
+                    onClick={() => setQty((q) => q + 1)}
+                    className="w-9 h-10 flex items-center justify-center transition-colors duration-200"
+                    style={{ color: "#C8793A" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(200,121,58,0.12)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                    aria-label="Aumentar cantidad"
+                  >
+                    <Plus size={13} />
+                  </button>
+                </div>
+
+                {/* Add to cart */}
+                <button
+                  onClick={handleAdd}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm rounded-[4px] transition-all duration-300"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontWeight: 500,
+                    background: added ? "rgba(200,121,58,0.3)" : "#C8793A",
+                    color: "#0D0A06",
+                  }}
+                  onMouseEnter={(e) => { if (!added) e.currentTarget.style.background = "#F0A835"; }}
+                  onMouseLeave={(e) => { if (!added) e.currentTarget.style.background = "#C8793A"; }}
+                >
+                  <ShoppingBag size={15} strokeWidth={2} />
+                  {added ? "¡Agregado!" : "Sumar al pedido"}
+                </button>
+              </div>
+
+              {/* Nota comunidad */}
+              <p className="text-cream/30 text-[11px] mt-3 leading-relaxed"
+                style={{ fontFamily: "var(--font-body)" }}>
+                Precio comunidad aplicado automáticamente para cuentas aprobadas.{" "}
+                <Link href="/acceso-mayorista" className="text-amber/60 hover:text-amber underline underline-offset-2 transition-colors duration-200">
                   Solicitá tu acceso.
                 </Link>
               </p>
             </motion.div>
 
-            {/* CTAs */}
-            <motion.div
-              variants={fadeIn}
-              initial="hidden"
-              animate="visible"
-              custom={0.5}
-              className="flex flex-col sm:flex-row gap-3"
-            >
-              <Link
-                href="/acceso-mayorista"
-                className="inline-flex items-center justify-center px-7 py-3 text-sm rounded-[4px] transition-colors duration-300"
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontWeight: 500,
-                  background: "rgba(200, 121, 58, 0.9)",
-                  color: "#0D0A06",
-                }}
-              >
-                Solicitá tu cuenta mayorista
-              </Link>
+            {/* Ver catálogo */}
+            <motion.div variants={fadeIn} initial="hidden" animate="visible" custom={0.45}>
               <Link
                 href="/productos"
-                className="inline-flex items-center justify-center px-7 py-3 text-sm text-cream/70 hover:text-white-soft rounded-[4px] transition-colors duration-300"
+                className="inline-flex items-center justify-center w-full py-2.5 text-sm text-cream/60 hover:text-white-soft rounded-[4px] transition-colors duration-300"
                 style={{
                   fontFamily: "var(--font-body)",
                   fontWeight: 400,
-                  border: "1px solid rgba(200,121,58,0.2)",
+                  border: "1px solid rgba(200,121,58,0.15)",
                 }}
               >
                 Ver todo el catálogo
@@ -252,17 +287,14 @@ export default function ProductDetailView({ product }) {
           </div>
         </div>
 
-        {/* ─── Benefits section ─── */}
+        {/* Benefits */}
         {product.beneficios?.length > 0 && (
           <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeIn} initial="hidden"
+            whileInView="visible" viewport={{ once: true, margin: "-80px" }}
             custom={0}
             className="mt-20"
           >
-            {/* Section header */}
             <div className="flex items-center gap-4 mb-10">
               <h2
                 className="text-white-soft shrink-0"
@@ -274,41 +306,27 @@ export default function ProductDetailView({ product }) {
               >
                 Beneficios y características
               </h2>
-              <div
-                className="flex-1 h-px"
-                style={{ background: "rgba(200, 121, 58, 0.15)" }}
-              />
+              <div className="flex-1 h-px" style={{ background: "rgba(200, 121, 58, 0.15)" }} />
             </div>
 
-            {/* Benefits grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {product.beneficios.map((b, i) => {
                 const Icon = ICONS[b.icono];
                 return (
                   <motion.div
                     key={i}
-                    variants={fadeIn}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-40px" }}
+                    variants={fadeIn} initial="hidden"
+                    whileInView="visible" viewport={{ once: true, margin: "-40px" }}
                     custom={i * 0.07}
                     className="flex items-start gap-3 p-4 rounded-[4px]"
-                    style={{
-                      background: "#1A1510",
-                      border: "1px solid rgba(200, 121, 58, 0.1)",
-                    }}
+                    style={{ background: "#1A1510", border: "1px solid rgba(200, 121, 58, 0.1)" }}
                   >
                     {Icon && (
                       <div
                         className="flex items-center justify-center w-8 h-8 rounded-full shrink-0"
                         style={{ background: "rgba(200, 121, 58, 0.1)" }}
                       >
-                        <Icon
-                          size={15}
-                          strokeWidth={1.5}
-                          className="text-amber"
-                          aria-hidden="true"
-                        />
+                        <Icon size={15} strokeWidth={1.5} className="text-amber" aria-hidden="true" />
                       </div>
                     )}
                     <p
@@ -323,60 +341,6 @@ export default function ProductDetailView({ product }) {
             </div>
           </motion.div>
         )}
-
-        {/* ─── Bottom CTA strip ─── */}
-        <motion.div
-          variants={fadeIn}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-          custom={0}
-          className="mt-20 text-center"
-        >
-          <div
-            className="inline-block w-full max-w-2xl py-10 px-8 rounded-[4px]"
-            style={{
-              background: "#1A1510",
-              border: "1px solid rgba(200, 121, 58, 0.15)",
-            }}
-          >
-            <p
-              className="text-amber text-xs tracking-[0.25em] uppercase mb-3"
-              style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
-            >
-              ¿Te interesa este producto?
-            </p>
-            <h3
-              className="text-white-soft mb-3"
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontWeight: 300,
-                fontSize: "clamp(1.4rem, 2.5vw, 1.9rem)",
-              }}
-            >
-              Accedé a precios mayoristas
-            </h3>
-            <p
-              className="text-cream/55 text-sm mb-7 max-w-sm mx-auto"
-              style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
-            >
-              Distribuidores, restaurantes y tiendas gourmet tienen precios
-              diferenciados por volumen.
-            </p>
-            <Link
-              href="/acceso-mayorista"
-              className="inline-flex items-center px-8 py-3 text-sm rounded-[4px] transition-colors duration-300"
-              style={{
-                fontFamily: "var(--font-body)",
-                fontWeight: 500,
-                background: "rgba(200, 121, 58, 0.9)",
-                color: "#0D0A06",
-              }}
-            >
-              Solicitá tu cuenta mayorista
-            </Link>
-          </div>
-        </motion.div>
 
       </div>
     </div>

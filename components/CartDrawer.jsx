@@ -2,15 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Minus, ShoppingBag } from "lucide-react";
-import { ESCALAS, getEscalaIndex } from "@/lib/tienda-products";
 
 export default function CartDrawer({ open, onClose, items, onUpdateQty, onConfirm }) {
-  const totalKg = items.reduce((sum, it) => sum + it.kgUnit * it.qty, 0);
-  const escalaIdx = getEscalaIndex(totalKg);
-  const total = items.reduce(
-    (sum, it) => sum + it.precios[escalaIdx] * it.qty,
-    0
-  );
+  const total = items.reduce((sum, it) => sum + it.precioBase * it.qty, 0);
 
   return (
     <AnimatePresence>
@@ -50,10 +44,10 @@ export default function CartDrawer({ open, onClose, items, onUpdateQty, onConfir
               <div className="flex items-center gap-2.5">
                 <ShoppingBag size={18} className="text-amber" strokeWidth={1.5} />
                 <span
-                  className="text-white-soft text-base"
-                  style={{ fontFamily: "var(--font-body)", fontWeight: 600 }}
+                  className="text-white-soft"
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "1rem" }}
                 >
-                  Carrito
+                  Pedido
                 </span>
                 {items.length > 0 && (
                   <span
@@ -78,30 +72,6 @@ export default function CartDrawer({ open, onClose, items, onUpdateQty, onConfir
               </button>
             </div>
 
-            {/* Escala activa */}
-            {items.length > 0 && (
-              <div
-                className="mx-5 mt-4 px-4 py-2.5 rounded-[4px] flex items-center justify-between"
-                style={{
-                  background: "rgba(200, 121, 58, 0.08)",
-                  border: "1px solid rgba(200, 121, 58, 0.2)",
-                }}
-              >
-                <span
-                  className="text-cream/60 text-xs"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  Escala aplicada
-                </span>
-                <span
-                  className="text-amber text-xs font-semibold"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  {ESCALAS[escalaIdx].label}
-                </span>
-              </div>
-            )}
-
             {/* Items */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
               {items.length === 0 ? (
@@ -111,7 +81,7 @@ export default function CartDrawer({ open, onClose, items, onUpdateQty, onConfir
                     className="text-cream/30 text-sm"
                     style={{ fontFamily: "var(--font-body)" }}
                   >
-                    El carrito está vacío.
+                    El pedido está vacío.
                     <br />Agregá productos desde el catálogo.
                   </p>
                 </div>
@@ -137,8 +107,7 @@ export default function CartDrawer({ open, onClose, items, onUpdateQty, onConfir
                         className="text-cream/50 text-xs mt-0.5"
                         style={{ fontFamily: "var(--font-body)" }}
                       >
-                        {item.presentacion} ·{" "}
-                        ${item.precios[escalaIdx].toLocaleString("es-AR")} c/u
+                        {item.presentacion} · ${item.precioBase.toLocaleString("es-AR")} c/u
                       </p>
                     </div>
 
@@ -184,7 +153,7 @@ export default function CartDrawer({ open, onClose, items, onUpdateQty, onConfir
                       style={{ fontFamily: "var(--font-body)", fontWeight: 600 }}
                     >
                       <span className="text-gold text-sm">
-                        ${(item.precios[escalaIdx] * item.qty).toLocaleString("es-AR")}
+                        ${(item.precioBase * item.qty).toLocaleString("es-AR")}
                       </span>
                     </div>
                   </div>
@@ -198,7 +167,6 @@ export default function CartDrawer({ open, onClose, items, onUpdateQty, onConfir
                 className="px-5 py-5 space-y-4"
                 style={{ borderTop: "1px solid rgba(200, 121, 58, 0.12)" }}
               >
-                {/* Total */}
                 <div className="flex items-center justify-between">
                   <span
                     className="text-cream/60 text-sm"
@@ -218,8 +186,7 @@ export default function CartDrawer({ open, onClose, items, onUpdateQty, onConfir
                   className="text-cream/30 text-[11px] leading-relaxed"
                   style={{ fontFamily: "var(--font-body)" }}
                 >
-                  * Precio sujeto a confirmación. El total final se coordina
-                  por WhatsApp antes de la facturación.
+                  Precio base. Cuentas de comunidad mayorista aplican descuento adicional.
                 </p>
 
                 <button
