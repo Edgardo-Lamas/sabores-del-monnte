@@ -8,6 +8,9 @@ import { useScrollPosition } from "@/app/hooks/useScrollPosition";
 import { useCart } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
 
+// WhatsApp Business — 54 (Argentina) + 11 (área) + número
+const WA_NUMBER = "541122499832";
+
 const NAV_LINKS = [
   { href: "/", label: "Inicio" },
   { href: "/nosotros", label: "Nosotros" },
@@ -18,7 +21,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const scrollY = useScrollPosition();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { items, drawerOpen, setDrawerOpen, updateQty } = useCart();
+  const { items, drawerOpen, setDrawerOpen, updateQty, clearCart } = useCart();
 
   const isScrolled = scrollY > 50;
   const totalItems = items.reduce((s, i) => s + i.qty, 0);
@@ -210,8 +213,14 @@ export default function Navbar() {
         items={items}
         onUpdateQty={updateQty}
         onConfirm={() => {
+          const total = items.reduce((s, i) => s + i.precioBase * i.qty, 0);
+          const lineas = items
+            .map((i) => `• ${i.nombre} — ${i.presentacion} × ${i.qty} = $${(i.precioBase * i.qty).toLocaleString("es-AR")}`)
+            .join("\n");
+          const msg = `Hola! Quiero realizar el siguiente pedido:\n\n${lineas}\n\n💰 *Total estimado: $${total.toLocaleString("es-AR")}*\n\nPor favor confirmar disponibilidad y forma de pago. ¡Gracias!`;
+          window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+          clearCart();
           setDrawerOpen(false);
-          // TODO: navegar a checkout
         }}
       />
     </>
