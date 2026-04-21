@@ -9,7 +9,9 @@ export default auth((req) => {
   /* ── Proteger /tienda/* ── */
   if (nextUrl.pathname.startsWith("/tienda")) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL("/login", nextUrl));
+      const loginUrl = new URL("/login", nextUrl);
+      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
     if (rol === "pending") {
       return NextResponse.redirect(
@@ -17,14 +19,18 @@ export default auth((req) => {
       );
     }
     if (rol !== "mayorista" && rol !== "admin") {
-      return NextResponse.redirect(new URL("/login", nextUrl));
+      const loginUrl = new URL("/login", nextUrl);
+      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
   /* ── Proteger /admin/* ── */
   if (nextUrl.pathname.startsWith("/admin")) {
     if (!isLoggedIn || rol !== "admin") {
-      return NextResponse.redirect(new URL("/login", nextUrl));
+      const loginUrl = new URL("/login", nextUrl);
+      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
