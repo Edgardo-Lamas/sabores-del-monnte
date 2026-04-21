@@ -68,10 +68,10 @@ export default function Navbar() {
                   className="text-white-soft text-lg tracking-wide group-hover:text-gold transition-colors duration-300"
                   style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}
                 >
-                  Sabores de Monte
+                  Origen Natural
                 </span>
                 <span className="text-cream/50 text-[10px] tracking-[0.25em] uppercase">
-                  Apicultura artesanal
+                  Distribuidora artesanal
                 </span>
               </div>
             </Link>

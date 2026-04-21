@@ -53,7 +53,7 @@ export default function Footer() {
                 className="text-white-soft text-lg group-hover:text-gold transition-colors duration-300"
                 style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}
               >
-                Sabores de Monte
+                Origen Natural
               </span>
             </Link>
 
@@ -61,7 +61,7 @@ export default function Footer() {
               className="text-cream/50 text-sm leading-relaxed max-w-[240px]"
               style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
             >
-              Apicultura artesanal en las sierras de Córdoba. Miel pura directa del productor.
+              Distribuidora artesanal de productos naturales seleccionados. Miel, aceites, sales y más.
             </p>
           </div>
 
@@ -165,8 +165,39 @@ export default function Footer() {
             className="text-cream/30 text-xs"
             style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
           >
-            © {year} Sabores de Monte. Todos los derechos reservados.
+            © {year} Origen Natural. Todos los derechos reservados.
           </p>
+
+          <div className="flex items-center gap-4">
+            {/* Sello Studio Lamas */}
+            <a
+              href="https://studio-lamas.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 group transition-opacity duration-200 hover:opacity-80"
+              aria-label="Diseño y desarrollo por Studio Lamas"
+            >
+              <span
+                className="text-cream/25 text-[11px] group-hover:text-cream/50 transition-colors duration-200"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
+              >
+                Diseño y desarrollo
+              </span>
+              {/* Logo E de Studio Lamas */}
+              <svg viewBox="0 0 14 22" fill="none" width="10" height="16" aria-hidden="true">
+                <rect x="0" y="0"    width="3.5" height="22"  rx="1.75" fill="#c9a227" opacity="0.5" />
+                <rect x="0" y="0"    width="11"  height="3.5" rx="1.75" fill="#c9a227" opacity="0.5" />
+                <rect x="0" y="9.25" width="8"   height="3.5" rx="1.75" fill="#c9a227" opacity="0.5" />
+                <rect x="0" y="18.5" width="11"  height="3.5" rx="1.75" fill="#c9a227" opacity="0.5" />
+              </svg>
+              <span
+                className="text-cream/30 text-[11px] group-hover:text-amber transition-colors duration-200"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 600 }}
+              >
+                Studio Lamas
+              </span>
+            </a>
+          </div>
 
           <div className="flex items-center gap-4">
             {LEGAL_LINKS.map((link) => (
