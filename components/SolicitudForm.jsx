@@ -77,10 +77,13 @@ export default function SolicitudForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
   });
+
+  const terminosChecked = watch("terminos");
 
   async function onSubmit(data) {
     setServerError(null);
@@ -311,18 +314,25 @@ export default function SolicitudForm() {
             <input
               type="checkbox"
               {...register("terminos")}
+              id="terminos"
               className="sr-only"
             />
             <div
-              className="w-4 h-4 rounded-[3px] border flex items-center justify-center transition-colors duration-200"
+              className="w-4 h-4 rounded-[3px] flex items-center justify-center transition-all duration-200"
               style={{
-                background: "rgba(200, 121, 58, 0.1)",
+                background: terminosChecked ? "#C8793A" : "rgba(200,121,58,0.1)",
                 border: errors.terminos
                   ? "1px solid rgba(239,68,68,0.7)"
-                  : "1px solid rgba(200, 121, 58, 0.4)",
+                  : terminosChecked
+                  ? "1px solid #C8793A"
+                  : "1px solid rgba(200,121,58,0.4)",
               }}
             >
-              {/* checkmark — shown via CSS sibling selector via JS workaround */}
+              {terminosChecked && (
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                  <path d="M1 4L3.5 6.5L9 1" stroke="#0D0A06" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
             </div>
           </div>
           <span
@@ -333,7 +343,7 @@ export default function SolicitudForm() {
             <a href="/terminos" className="text-amber hover:text-gold underline transition-colors duration-200">
               términos y condiciones
             </a>{" "}
-            de uso del programa de distribuidores
+            de Club Origen
             <span className="text-amber ml-0.5">*</span>
           </span>
         </label>
