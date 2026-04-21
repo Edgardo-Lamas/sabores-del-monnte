@@ -1,17 +1,5 @@
 import { NextResponse } from "next/server";
-
-/**
- * POST /api/solicitudes
- *
- * Recibe la solicitud de cuenta mayorista, la guarda en Supabase
- * y envía un email de confirmación al solicitante.
- *
- * TODO: configurar las siguientes variables de entorno en .env.local:
- *   SUPABASE_URL=
- *   SUPABASE_SERVICE_ROLE_KEY=
- *   EMAIL_FROM=
- *   RESEND_API_KEY=   (o el proveedor de email que se use)
- */
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(request) {
   let body;
@@ -22,15 +10,11 @@ export async function POST(request) {
     return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
   }
 
-  /* ─── Validación básica server-side ─── */
-
+  /* ─── Validación server-side ─── */
   const required = ["nombre", "empresa", "cuit", "email", "telefono", "tipoNegocio", "provincia", "volumen"];
   for (const field of required) {
     if (!body[field]) {
-      return NextResponse.json(
-        { error: `Campo requerido: ${field}` },
-        { status: 422 }
-      );
+      return NextResponse.json({ error: `Campo requerido: ${field}` }, { status: 422 });
     }
   }
 
@@ -41,54 +25,34 @@ export async function POST(request) {
     );
   }
 
-  /* ─── TODO: Guardar en Supabase ─── */
-  /*
-  const { createClient } = await import("@supabase/supabase-js");
+  /* ─── Guardar en Supabase ─── */
   const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
   const { error: dbError } = await supabase
-    .from("solicitudes_mayoristas")
+    .from("solicitudes")
     .insert({
       nombre:       body.nombre,
       empresa:      body.empresa,
       cuit:         body.cuit,
       email:        body.email,
       telefono:     body.telefono,
+      negocio:      body.empresa,
       tipo_negocio: body.tipoNegocio,
       provincia:    body.provincia,
       volumen:      body.volumen,
       mensaje:      body.mensaje ?? null,
       estado:       "pendiente",
-      created_at:   new Date().toISOString(),
     });
 
   if (dbError) {
     console.error("[solicitudes] Supabase error:", dbError);
     return NextResponse.json({ error: "Error al guardar la solicitud" }, { status: 500 });
   }
-  */
 
-  /* ─── TODO: Enviar email de confirmación (ej. con Resend) ─── */
-  /*
-  const { Resend } = await import("resend");
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  /* ─── TODO: email de confirmación con Resend (pendiente) ─── */
 
-  await resend.emails.send({
-    from:    process.env.EMAIL_FROM,
-    to:      body.email,
-    subject: "Solicitud recibida — Sabores de Monte",
-    html: `
-      <p>Hola ${body.nombre},</p>
-      <p>Recibimos tu solicitud de cuenta mayorista para <strong>${body.empresa}</strong>.</p>
-      <p>Revisamos tu perfil en las próximas 24–48 hs hábiles y te contactamos para darte acceso.</p>
-      <p>— Sabores de Monte</p>
-    `,
-  });
-  */
-
-  /* ─── Respuesta de éxito ─── */
   return NextResponse.json({ ok: true }, { status: 201 });
 }
