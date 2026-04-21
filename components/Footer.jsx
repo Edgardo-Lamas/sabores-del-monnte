@@ -53,7 +53,7 @@ export default function Footer() {
                 className="text-white-soft text-lg group-hover:text-gold transition-colors duration-300"
                 style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}
               >
-                Origen Natural
+                Sabores del Monte
               </span>
             </Link>
 
@@ -165,7 +165,7 @@ export default function Footer() {
             className="text-cream/30 text-xs"
             style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
           >
-            © {year} Origen Natural. Todos los derechos reservados.
+            © {year} Sabores del Monte. Todos los derechos reservados.
           </p>
 
           <div className="flex items-center gap-4">

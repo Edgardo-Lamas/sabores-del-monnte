@@ -199,7 +199,7 @@ export default function CatalogoClient() {
               fontSize: "clamp(1.8rem, 6vw, 2.4rem)",
             }}
           >
-            Origen Natural
+            Sabores del Monte
           </h1>
           <p
             className="text-cream/40 text-xs tracking-[0.3em] uppercase mb-4"
@@ -275,7 +275,7 @@ export default function CatalogoClient() {
           className="mb-8"
         >
           <a
-            href={`https://wa.me/?text=${encodeURIComponent("¡Hola! Te comparto el catálogo de Origen Natural con productos artesanales seleccionados 🌿\n\nhttps://sabores-del-monnte.vercel.app/catalogo")}`}
+            href={`https://wa.me/?text=${encodeURIComponent("¡Hola! Te comparto el catálogo de Sabores del Monte con productos artesanales seleccionados 🌿\n\nhttps://sabores-del-monnte.vercel.app/catalogo")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2.5 w-full py-3 rounded-[4px] text-sm font-semibold transition-all duration-300 hover:opacity-90"

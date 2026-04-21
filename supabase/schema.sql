@@ -1,5 +1,5 @@
 -- ================================================================
---  Origen Natural — Schema inicial
+--  Sabores del Monte — Schema inicial
 --  Pegar en: Supabase → SQL Editor → New query → Run
 -- ================================================================
 
