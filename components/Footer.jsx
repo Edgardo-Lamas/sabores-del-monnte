@@ -5,7 +5,7 @@ const NAV_LINKS = [
   { href: "/",              label: "Inicio"         },
   { href: "/nosotros",      label: "Nosotros"        },
   { href: "/productos",     label: "Productos"       },
-  { href: "/distribuidores",label: "Distribuidores"  },
+  { href: "/distribuidores",label: "Quiero distribuir"  },
 ];
 
 const LEGAL_LINKS = [
@@ -91,7 +91,7 @@ export default function Footer() {
                   className="text-amber/70 text-sm hover:text-gold transition-colors duration-200"
                   style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
                 >
-                  Acceso mayorista →
+                  Club Origen →
                 </Link>
               </li>
             </ul>

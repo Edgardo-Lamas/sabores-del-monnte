@@ -1,4 +1,5 @@
 import SolicitudForm from "@/components/SolicitudForm";
+import MapaZonaWrapper from "@/components/MapaZonaWrapper";
 
 export const metadata = {
   title: "Acceso Mayorista",
@@ -220,6 +221,33 @@ export default function AccesoMayoristaPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* ─── Mapa de zona ─── */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-14">
+        <p
+          className="text-amber text-xs tracking-[0.3em] uppercase mb-3"
+          style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
+        >
+          Zona de cobertura
+        </p>
+        <h2
+          className="text-white-soft mb-6"
+          style={{
+            fontFamily: "var(--font-heading)",
+            fontWeight: 300,
+            fontSize: "clamp(1.4rem, 2.5vw, 2rem)",
+          }}
+        >
+          Entrega sin cargo en CABA y GBA Norte
+        </h2>
+        <MapaZonaWrapper />
+        <p
+          className="text-cream/35 text-xs mt-3"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          Zona marcada: entrega gratis con pedido mínimo de $80.000. Otras zonas del GBA consultá condiciones.
+        </p>
       </div>
 
       {/* ─── Divider ─── */}

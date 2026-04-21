@@ -15,7 +15,7 @@ const NAV_LINKS = [
   { href: "/", label: "Inicio" },
   { href: "/nosotros", label: "Nosotros" },
   { href: "/productos", label: "Productos" },
-  { href: "/distribuidores", label: "Distribuidores" },
+  { href: "/distribuidores", label: "Quiero distribuir" },
 ];
 
 export default function Navbar() {
@@ -118,13 +118,13 @@ export default function Navbar() {
                 )}
               </button>
 
-              {/* Acceso Mayorista button */}
+              {/* Club Origen button */}
               <Link
                 href="/acceso-mayorista"
                 className="hidden md:inline-flex items-center px-5 py-2.5 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
                 style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
               >
-                Acceso Mayorista
+                Club Origen
               </Link>
 
               {/* Mobile menu toggle */}
@@ -197,7 +197,7 @@ export default function Navbar() {
                     className="inline-flex items-center justify-center w-full px-5 py-3 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
                     style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
                   >
-                    Acceso Mayorista
+                    Club Origen
                   </Link>
                 </motion.div>
               </div>
