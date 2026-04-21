@@ -100,3 +100,38 @@ alter table solicitudes add column if not exists empresa   text;
 alter table solicitudes add column if not exists cuit      text;
 alter table solicitudes add column if not exists provincia text;
 alter table solicitudes add column if not exists volumen   text;
+
+
+-- ─── MIGRACIÓN 002 — tabla de usuarios admin ─────────────────────
+-- Ejecutar en: Supabase → SQL Editor → New query → Run
+
+create table if not exists users (
+  id            uuid primary key default gen_random_uuid(),
+  email         text not null unique,
+  password_hash text not null,
+  nombre        text not null,
+  empresa       text,
+  rol           text not null default 'mayorista'
+                check (rol in ('admin', 'mayorista', 'pending')),
+  activo        boolean not null default true,
+  created_at    timestamptz default now()
+);
+
+alter table users enable row level security;
+
+-- Solo service_role puede leer usuarios (nunca el cliente browser)
+-- (sin políticas anon = nadie desde el browser puede acceder)
+
+-- ─── INSERT usuario admin ─────────────────────────────────────────
+-- Reemplazá el password_hash si querés cambiar la contraseña.
+-- Contraseña actual: SaboresMonte2025!
+
+insert into users (email, password_hash, nombre, empresa, rol)
+values (
+  'admin@sabores.com',
+  '$2b$12$bCKtlke7jzxtH0ZBsqwtH.kM9ZeOrrXTGWofvm.jwYQQNDkBt1nAm',
+  'Administrador',
+  'Sabores del Monte',
+  'admin'
+)
+on conflict (email) do nothing;

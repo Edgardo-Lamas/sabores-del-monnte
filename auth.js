@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { createClient } from "@supabase/supabase-js";
 
 /**
  * DEMO USERS — solo para desarrollo local.
@@ -53,7 +54,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const { email, password } = credentials ?? {};
         if (!email || !password) return null;
 
-        /* ── DEMO MODE (development) ── */
+        /* ── DEMO MODE (solo development) ── */
         if (process.env.NODE_ENV !== "production") {
           const demo = DEMO_USERS.find(
             (u) => u.email.toLowerCase() === email.toLowerCase()
@@ -69,17 +70,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
         }
 
-        /* ── TODO: Consulta Supabase (descomentar cuando esté configurado) ──
-        const { getSupabaseAdmin } = await import("@/lib/supabase");
-        const supabase = getSupabaseAdmin();
+        /* ── Producción: consulta Supabase ── */
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.SUPABASE_SERVICE_ROLE_KEY
+        );
 
         const { data: user, error } = await supabase
           .from("users")
-          .select("id, email, nombre, empresa, rol, password_hash")
+          .select("id, email, nombre, empresa, rol, password_hash, activo")
           .eq("email", email.toLowerCase())
           .single();
 
-        if (error || !user) return null;
+        if (error || !user || !user.activo) return null;
 
         const passwordMatch = await bcrypt.compare(password, user.password_hash);
         if (!passwordMatch) return null;
@@ -91,9 +94,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           empresa: user.empresa,
           rol:     user.rol,
         };
-        ── */
-
-        return null;
       },
     }),
   ],
