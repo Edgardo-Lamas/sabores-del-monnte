@@ -4,7 +4,7 @@ export default function manifest() {
     name: "Sabores del Monte",
     short_name: "Sabores",
     description: "Distribuidora artesanal mayorista — miel, aceites y productos de campo",
-    start_url: "/",
+    start_url: "/start",
     display: "standalone",
     background_color: "#0D0A06",
     theme_color: "#0D0A06",

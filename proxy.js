@@ -25,8 +25,11 @@ export default auth((req) => {
     }
   }
 
-  /* ── Proteger /admin/* ── */
-  if (nextUrl.pathname.startsWith("/admin")) {
+  /* ── Proteger /admin/* (excepto manifest) ── */
+  if (
+    nextUrl.pathname.startsWith("/admin") &&
+    !nextUrl.pathname.endsWith(".webmanifest")
+  ) {
     if (!isLoggedIn || rol !== "admin") {
       const loginUrl = new URL("/login", nextUrl);
       loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
@@ -36,14 +39,12 @@ export default auth((req) => {
 
   /* ── Redirigir /login si ya está autenticado ── */
   if (nextUrl.pathname === "/login" && isLoggedIn) {
-    if (rol === "admin" || rol === "mayorista") {
-      return NextResponse.redirect(new URL("/tienda", nextUrl));
-    }
+    return NextResponse.redirect(new URL("/start", nextUrl));
   }
 
   return NextResponse.next();
 });
 
 export const config = {
-  matcher: ["/tienda/:path*", "/admin/:path*", "/login"],
+  matcher: ["/tienda/:path*", "/admin/:path*", "/login", "/start"],
 };
