@@ -8,7 +8,7 @@ export function CartProvider({ children }) {
   const [items, setItems]           = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const addItem = useCallback((product, presentacion) => {
+  const addItem = useCallback((product, presentacion, precioFinal = null) => {
     const cartKey = `${product.id}__${presentacion.label}`;
     setItems((prev) => {
       const existing = prev.find((i) => i.cartKey === cartKey);
@@ -27,7 +27,7 @@ export function CartProvider({ children }) {
           presentacion:  presentacion.label,
           kgUnit:        presentacion.kgUnit,
           precioBase:    presentacion.precioBase,
-          precioMayorista: presentacion.precioMayorista,
+          precioFinal:   precioFinal ?? presentacion.precioBase,
           qty:           1,
         },
       ];

@@ -102,6 +102,38 @@ export default function AdminDashboard() {
   const [data, setData]           = useState(null);
   const [loading, setLoading]     = useState(true);
   const [lastUpdate, setLastUpdate] = useState(null);
+  const [descuento, setDescuento]   = useState(15);
+  const [descuentoInput, setDescuentoInput] = useState("15");
+  const [savingDescuento, setSavingDescuento] = useState(false);
+  const [descuentoOk, setDescuentoOk] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((d) => {
+        setDescuento(d.descuento_mayorista);
+        setDescuentoInput(String(d.descuento_mayorista));
+      })
+      .catch(() => {});
+  }, []);
+
+  async function guardarDescuento() {
+    setSavingDescuento(true);
+    try {
+      const res = await fetch("/api/config", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ descuento_mayorista: Number(descuentoInput) }),
+      });
+      if (res.ok) {
+        setDescuento(Number(descuentoInput));
+        setDescuentoOk(true);
+        setTimeout(() => setDescuentoOk(false), 2500);
+      }
+    } finally {
+      setSavingDescuento(false);
+    }
+  }
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -488,6 +520,51 @@ export default function AdminDashboard() {
               </Panel>
 
             </div>
+
+            {/* Configuración */}
+            <Panel title="Configuración">
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                    % Descuento Club Origen
+                  </p>
+                  <p style={{ fontSize: 11, color: "#4B5563", marginBottom: 8 }}>
+                    Se aplica automáticamente a todos los mayoristas logueados
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={descuentoInput}
+                      onChange={(e) => setDescuentoInput(e.target.value)}
+                      style={{
+                        width: 70, padding: "6px 10px",
+                        background: "#111113", border: "1px solid #3C3C3E",
+                        borderRadius: 4, color: "#F9FAFB", fontSize: 14, fontWeight: 600,
+                        outline: "none",
+                      }}
+                    />
+                    <span style={{ color: "#6B7280", fontSize: 13 }}>%</span>
+                    <button
+                      onClick={guardarDescuento}
+                      disabled={savingDescuento}
+                      style={{
+                        padding: "6px 14px", borderRadius: 4, fontSize: 12, fontWeight: 600,
+                        background: descuentoOk ? "#22C55E" : "#C8793A",
+                        color: "#0D0A06", border: "none", cursor: savingDescuento ? "not-allowed" : "pointer",
+                        opacity: savingDescuento ? 0.6 : 1, transition: "background 0.3s",
+                      }}
+                    >
+                      {descuentoOk ? "✓ Guardado" : savingDescuento ? "Guardando…" : "Guardar"}
+                    </button>
+                    <span style={{ fontSize: 11, color: "#4B5563" }}>
+                      Actual: <strong style={{ color: "#C8793A" }}>{descuento}%</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Panel>
 
             {/* Referencia operativa */}
             <Panel title="Referencia operativa">

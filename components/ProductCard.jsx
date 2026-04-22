@@ -10,8 +10,9 @@ const cardVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, isMayorista = false, descuento = 15 }) {
   const firstP = product.presentaciones[0];
+  const precioClub = Math.round(firstP.precioBase * (1 - descuento / 100));
 
   return (
     <motion.div
@@ -47,6 +48,20 @@ export default function ProductCard({ product }) {
             }}
           >
             {product.badge}
+          </div>
+        )}
+
+        {isMayorista && (
+          <div
+            className="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-[3px] text-[10px]"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontWeight: 700,
+              background: "#C8793A",
+              color: "#0D0A06",
+            }}
+          >
+            -{descuento}%
           </div>
         )}
 
@@ -111,26 +126,49 @@ export default function ProductCard({ product }) {
           className="flex items-end justify-between mb-4 py-3 px-3 rounded-[3px]"
           style={{ background: "rgba(200, 121, 58, 0.05)", border: "1px solid rgba(200,121,58,0.1)" }}
         >
-          <div>
-            <p className="text-cream/40 text-[10px] uppercase tracking-[0.12em] mb-0.5"
-              style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
-              Desde
-            </p>
-            <p className="text-cream/70 text-sm"
-              style={{ fontFamily: "var(--font-body)", fontWeight: 600 }}>
-              ${firstP.precioBase.toLocaleString("es-AR")}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-amber/70 text-[10px] uppercase tracking-[0.12em] mb-0.5"
-              style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
-              Comunidad
-            </p>
-            <p className="text-amber text-sm"
-              style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}>
-              ${firstP.precioMayorista.toLocaleString("es-AR")}
-            </p>
-          </div>
+          {isMayorista ? (
+            <div className="w-full">
+              <p className="text-cream/40 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                Precio regular
+              </p>
+              <p className="text-cream/40 text-sm line-through mb-1"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                ${firstP.precioBase.toLocaleString("es-AR")}
+              </p>
+              <p className="text-amber/60 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                Tu precio Club Origen
+              </p>
+              <p className="text-amber text-lg"
+                style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}>
+                ${precioClub.toLocaleString("es-AR")}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div>
+                <p className="text-cream/40 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                  Desde
+                </p>
+                <p className="text-cream/70 text-sm"
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 600 }}>
+                  ${firstP.precioBase.toLocaleString("es-AR")}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-amber/70 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                  Comunidad
+                </p>
+                <p className="text-amber text-sm"
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}>
+                  ${precioClub.toLocaleString("es-AR")}
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* CTA */}

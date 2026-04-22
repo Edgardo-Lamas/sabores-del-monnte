@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTracking } from "@/lib/use-tracking";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -32,6 +33,16 @@ export default function ProductDetailView({ product, userEmail, userName }) {
   const catLabel = categoryLabels[product.categoria] ?? product.categoria;
   const { addItem } = useCart();
   const track = useTracking(userEmail, userName);
+  const { data: session } = useSession() ?? {};
+  const isMayorista = session?.user?.rol === "mayorista";
+  const [descuento, setDescuento] = useState(15);
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((d) => { if (d.descuento_mayorista) setDescuento(d.descuento_mayorista); })
+      .catch(() => {});
+  }, []);
 
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [qty, setQty]                 = useState(1);
@@ -42,9 +53,12 @@ export default function ProductDetailView({ product, userEmail, userName }) {
   }, [track, product.id, product.nombre]);
 
   const pres = product.presentaciones[selectedIdx];
+  const precioClub = Math.round(pres.precioBase * (1 - descuento / 100));
+  const precioMostrar = isMayorista ? precioClub : pres.precioBase;
 
   function handleAdd() {
-    for (let i = 0; i < qty; i++) addItem(product, pres);
+    const precioFinal = isMayorista ? precioClub : pres.precioBase;
+    for (let i = 0; i < qty; i++) addItem(product, pres, precioFinal);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }
@@ -190,27 +204,55 @@ export default function ProductDetailView({ product, userEmail, userName }) {
 
               {/* Precios */}
               <div className="flex gap-4 mb-5">
-                <div>
-                  <p className="text-cream/40 text-[10px] uppercase tracking-[0.12em] mb-0.5"
-                    style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
-                    Precio B2B
-                  </p>
-                  <p className="text-cream/80 text-xl"
-                    style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
-                    ${pres.precioBase.toLocaleString("es-AR")}
-                  </p>
-                </div>
-                <div className="w-px self-stretch" style={{ background: "rgba(200,121,58,0.15)" }} />
-                <div>
-                  <p className="text-amber/70 text-[10px] uppercase tracking-[0.12em] mb-0.5"
-                    style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
-                    Precio Comunidad
-                  </p>
-                  <p className="text-amber text-xl"
-                    style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
-                    ${pres.precioMayorista.toLocaleString("es-AR")}
-                  </p>
-                </div>
+                {isMayorista ? (
+                  <>
+                    <div>
+                      <p className="text-cream/40 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                        style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                        Precio regular
+                      </p>
+                      <p className="text-cream/40 text-xl line-through"
+                        style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
+                        ${pres.precioBase.toLocaleString("es-AR")}
+                      </p>
+                    </div>
+                    <div className="w-px self-stretch" style={{ background: "rgba(200,121,58,0.15)" }} />
+                    <div>
+                      <p className="text-amber/70 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                        style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                        Tu precio Club Origen (-{descuento}%)
+                      </p>
+                      <p className="text-amber text-xl"
+                        style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
+                        ${precioMostrar.toLocaleString("es-AR")}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <p className="text-cream/40 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                        style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                        Precio
+                      </p>
+                      <p className="text-cream/80 text-xl"
+                        style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
+                        ${pres.precioBase.toLocaleString("es-AR")}
+                      </p>
+                    </div>
+                    <div className="w-px self-stretch" style={{ background: "rgba(200,121,58,0.15)" }} />
+                    <div>
+                      <p className="text-amber/70 text-[10px] uppercase tracking-[0.12em] mb-0.5"
+                        style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                        Precio Comunidad
+                      </p>
+                      <p className="text-amber text-xl"
+                        style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
+                        ${precioClub.toLocaleString("es-AR")}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Cantidad + agregar */}

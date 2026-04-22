@@ -3,11 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, LogOut } from "lucide-react";
 import { useScrollPosition } from "@/app/hooks/useScrollPosition";
 import { useCart } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 
 // WhatsApp Business — 54 (Argentina) + 11 (área) + número
 const WA_NUMBER = "541122499832";
@@ -28,9 +28,7 @@ export default function Navbar() {
   const isScrolled = scrollY > 50;
   const totalItems = items.reduce((s, i) => s + i.qty, 0);
   const rol = session?.user?.rol;
-
-  const ctaLink  = rol === "admin" ? "/admin"  : rol === "mayorista" ? "/tienda" : "/acceso-mayorista";
-  const ctaLabel = rol === "admin" ? "Panel"   : rol === "mayorista" ? "Mi Tienda" : "Club Origen";
+  const empresa = session?.user?.empresa || session?.user?.name;
 
   return (
     <>
@@ -46,34 +44,18 @@ export default function Navbar() {
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
                 <div className="w-10 h-10 rounded-full border border-amber/40 flex items-center justify-center group-hover:border-gold transition-colors duration-300">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="text-amber group-hover:text-gold transition-colors duration-300"
-                  >
-                    <path
-                      d="M12 2L17.196 5.5V12.5L12 16L6.804 12.5V5.5L12 2Z"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 16L17.196 19.5V22L12 22L6.804 22V19.5L12 16Z"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinejoin="round"
-                      opacity="0.5"
-                    />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    className="text-amber group-hover:text-gold transition-colors duration-300">
+                    <path d="M12 2L17.196 5.5V12.5L12 16L6.804 12.5V5.5L12 2Z"
+                      stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                    <path d="M12 16L17.196 19.5V22L12 22L6.804 22V19.5L12 16Z"
+                      stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" opacity="0.5" />
                   </svg>
                 </div>
               </div>
               <div className="flex flex-col">
-                <span
-                  className="text-white-soft text-lg tracking-wide group-hover:text-gold transition-colors duration-300"
-                  style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}
-                >
+                <span className="text-white-soft text-lg tracking-wide group-hover:text-gold transition-colors duration-300"
+                  style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
                   Sabores del Monte
                 </span>
                 <span className="text-cream/50 text-[10px] tracking-[0.25em] uppercase">
@@ -85,19 +67,16 @@ export default function Navbar() {
             {/* ─── Navigation Links (Desktop) ─── */}
             <div className="hidden md:flex items-center gap-1">
               {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
+                <Link key={link.href} href={link.href}
                   className="relative px-4 py-2 text-sm text-cream/70 hover:text-white-soft transition-colors duration-300 group"
-                  style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}
-                >
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 400 }}>
                   {link.label}
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-amber group-hover:w-4/5 transition-all duration-300" />
                 </Link>
               ))}
             </div>
 
-            {/* ─── CTA + Cart + Mobile Toggle ─── */}
+            {/* ─── Right side ─── */}
             <div className="flex items-center gap-3">
               {/* Cart button */}
               <button
@@ -110,28 +89,47 @@ export default function Navbar() {
               >
                 <ShoppingBag size={20} strokeWidth={1.5} />
                 {totalItems > 0 && (
-                  <span
-                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px]"
-                    style={{
-                      background: "#C8793A",
-                      color: "#0D0A06",
-                      fontFamily: "var(--font-body)",
-                      fontWeight: 700,
-                    }}
-                  >
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px]"
+                    style={{ background: "#C8793A", color: "#0D0A06", fontFamily: "var(--font-body)", fontWeight: 700 }}>
                     {totalItems}
                   </span>
                 )}
               </button>
 
-              {/* CTA dinámico según sesión */}
-              <Link
-                href={ctaLink}
-                className="hidden md:inline-flex items-center px-5 py-2.5 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
-                style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
-              >
-                {ctaLabel}
-              </Link>
+              {/* CTA según rol */}
+              {rol === "admin" && (
+                <Link href="/admin"
+                  className="hidden md:inline-flex items-center px-5 py-2.5 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                  Panel
+                </Link>
+              )}
+
+              {rol === "mayorista" && (
+                <div className="hidden md:flex items-center gap-2">
+                  <span className="text-cream/50 text-xs truncate max-w-[140px]"
+                    style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                    {empresa}
+                  </span>
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] text-cream/40 hover:text-amber transition-colors duration-200"
+                    title="Cerrar sesión"
+                    style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem" }}
+                  >
+                    <LogOut size={14} />
+                    Salir
+                  </button>
+                </div>
+              )}
+
+              {!rol && (
+                <Link href="/acceso-mayorista"
+                  className="hidden md:inline-flex items-center px-5 py-2.5 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                  Club Origen
+                </Link>
+              )}
 
               {/* Mobile menu toggle */}
               <button
@@ -139,21 +137,9 @@ export default function Navbar() {
                 className="md:hidden flex flex-col items-center justify-center w-10 h-10 gap-1.5 group"
                 aria-label="Toggle menu"
               >
-                <span
-                  className={`block w-6 h-[1.5px] bg-cream transition-all duration-300 ${
-                    mobileMenuOpen ? "rotate-45 translate-y-[4.5px]" : "group-hover:w-5"
-                  }`}
-                />
-                <span
-                  className={`block w-6 h-[1.5px] bg-cream transition-all duration-300 ${
-                    mobileMenuOpen ? "opacity-0" : "group-hover:w-4"
-                  }`}
-                />
-                <span
-                  className={`block w-6 h-[1.5px] bg-cream transition-all duration-300 ${
-                    mobileMenuOpen ? "-rotate-45 -translate-y-[4.5px]" : "group-hover:w-5"
-                  }`}
-                />
+                <span className={`block w-6 h-[1.5px] bg-cream transition-all duration-300 ${mobileMenuOpen ? "rotate-45 translate-y-[4.5px]" : "group-hover:w-5"}`} />
+                <span className={`block w-6 h-[1.5px] bg-cream transition-all duration-300 ${mobileMenuOpen ? "opacity-0" : "group-hover:w-4"}`} />
+                <span className={`block w-6 h-[1.5px] bg-cream transition-all duration-300 ${mobileMenuOpen ? "-rotate-45 -translate-y-[4.5px]" : "group-hover:w-5"}`} />
               </button>
             </div>
           </div>
@@ -168,43 +154,46 @@ export default function Navbar() {
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="md:hidden overflow-hidden"
-              style={{
-                background: "rgba(13, 10, 6, 0.98)",
-                backdropFilter: "blur(16px)",
-              }}
+              style={{ background: "rgba(13, 10, 6, 0.98)", backdropFilter: "blur(16px)" }}
             >
               <div className="px-6 py-6 space-y-1 border-t border-amber/10">
                 {NAV_LINKS.map((link, index) => (
-                  <motion.div
-                    key={link.href}
+                  <motion.div key={link.href}
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: index * 0.08, duration: 0.3 }}
-                  >
-                    <Link
-                      href={link.href}
+                    transition={{ delay: index * 0.08, duration: 0.3 }}>
+                    <Link href={link.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className="block py-3 text-lg text-cream/70 hover:text-white-soft hover:pl-2 transition-all duration-300 border-b border-amber/5"
-                      style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}
-                    >
+                      style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}>
                       {link.label}
                     </Link>
                   </motion.div>
                 ))}
-                <motion.div
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.35, duration: 0.3 }}
-                  className="pt-4"
-                >
-                  <Link
-                    href={ctaLink}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="inline-flex items-center justify-center w-full px-5 py-3 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
-                    style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
-                  >
-                    {ctaLabel}
-                  </Link>
+
+                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.35, duration: 0.3 }} className="pt-4 space-y-3">
+                  {rol === "admin" && (
+                    <Link href="/admin" onClick={() => setMobileMenuOpen(false)}
+                      className="inline-flex items-center justify-center w-full px-5 py-3 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
+                      style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                      Panel admin
+                    </Link>
+                  )}
+                  {rol === "mayorista" && (
+                    <button onClick={() => { signOut({ callbackUrl: "/" }); setMobileMenuOpen(false); }}
+                      className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 text-sm border border-amber/20 text-cream/60 rounded-[4px] transition-all duration-300"
+                      style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                      <LogOut size={14} /> Cerrar sesión
+                    </button>
+                  )}
+                  {!rol && (
+                    <Link href="/acceso-mayorista" onClick={() => setMobileMenuOpen(false)}
+                      className="inline-flex items-center justify-center w-full px-5 py-3 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
+                      style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                      Club Origen
+                    </Link>
+                  )}
                 </motion.div>
               </div>
             </motion.div>
@@ -212,18 +201,20 @@ export default function Navbar() {
         </AnimatePresence>
       </header>
 
-      {/* ─── Cart Drawer (fuera del header para evitar z-index issues) ─── */}
+      {/* ─── Cart Drawer ─── */}
       <CartDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         items={items}
         onUpdateQty={updateQty}
         onConfirm={() => {
-          const total = items.reduce((s, i) => s + i.precioBase * i.qty, 0);
+          const esMayorista = rol === "mayorista";
+          const total = items.reduce((s, i) => s + i.precioFinal * i.qty, 0);
           const lineas = items
-            .map((i) => `• ${i.nombre} — ${i.presentacion} × ${i.qty} = $${(i.precioBase * i.qty).toLocaleString("es-AR")}`)
+            .map((i) => `• ${i.nombre} — ${i.presentacion} × ${i.qty} = $${(i.precioFinal * i.qty).toLocaleString("es-AR")}`)
             .join("\n");
-          const msg = `Hola! Quiero realizar el siguiente pedido:\n\n${lineas}\n\n💰 *Total estimado: $${total.toLocaleString("es-AR")}*\n\nPor favor confirmar disponibilidad y forma de pago. ¡Gracias!`;
+          const descuento = esMayorista ? "\n🏷️ *Precio Club Origen aplicado*" : "";
+          const msg = `Hola! Quiero realizar el siguiente pedido:\n\n${lineas}${descuento}\n\n💰 *Total estimado: $${total.toLocaleString("es-AR")}*\n\nPor favor confirmar disponibilidad y forma de pago. ¡Gracias!`;
           window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
           clearCart();
           setDrawerOpen(false);

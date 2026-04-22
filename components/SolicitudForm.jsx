@@ -84,7 +84,7 @@ export default function SolicitudForm() {
 
       if (result?.error) throw new Error("Cuenta creada pero no se pudo iniciar sesión. Andá a /login.");
 
-      router.push("/tienda");
+      router.push("/productos");
       router.refresh();
 
     } catch (err) {
