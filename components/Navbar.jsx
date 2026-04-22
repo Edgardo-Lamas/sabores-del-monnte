@@ -7,6 +7,7 @@ import { ShoppingBag } from "lucide-react";
 import { useScrollPosition } from "@/app/hooks/useScrollPosition";
 import { useCart } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
+import { useSession } from "next-auth/react";
 
 // WhatsApp Business — 54 (Argentina) + 11 (área) + número
 const WA_NUMBER = "541122499832";
@@ -22,9 +23,14 @@ export default function Navbar() {
   const scrollY = useScrollPosition();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { items, drawerOpen, setDrawerOpen, updateQty, clearCart } = useCart();
+  const { data: session } = useSession();
 
   const isScrolled = scrollY > 50;
   const totalItems = items.reduce((s, i) => s + i.qty, 0);
+  const rol = session?.user?.rol;
+
+  const ctaLink  = rol === "admin" ? "/admin"  : rol === "mayorista" ? "/tienda" : "/acceso-mayorista";
+  const ctaLabel = rol === "admin" ? "Panel"   : rol === "mayorista" ? "Mi Tienda" : "Club Origen";
 
   return (
     <>
@@ -118,13 +124,13 @@ export default function Navbar() {
                 )}
               </button>
 
-              {/* Club Origen button */}
+              {/* CTA dinámico según sesión */}
               <Link
-                href="/acceso-mayorista"
+                href={ctaLink}
                 className="hidden md:inline-flex items-center px-5 py-2.5 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
                 style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
               >
-                Club Origen
+                {ctaLabel}
               </Link>
 
               {/* Mobile menu toggle */}
@@ -192,12 +198,12 @@ export default function Navbar() {
                   className="pt-4"
                 >
                   <Link
-                    href="/acceso-mayorista"
+                    href={ctaLink}
                     onClick={() => setMobileMenuOpen(false)}
                     className="inline-flex items-center justify-center w-full px-5 py-3 text-sm border border-amber/60 text-amber hover:bg-amber hover:text-base rounded-[4px] transition-all duration-300"
                     style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
                   >
-                    Club Origen
+                    {ctaLabel}
                   </Link>
                 </motion.div>
               </div>
