@@ -1,71 +1,73 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import bcrypt from "bcryptjs";
 import { enviarEmailNuevaSolicitud, enviarEmailConfirmacionSolicitud } from "@/lib/email";
 
 export async function POST(request) {
   let body;
-
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
   }
 
-  /* ─── Validación server-side ─── */
-  const required = ["nombre", "empresa", "cuit", "email", "telefono", "tipoNegocio", "provincia", "volumen"];
-  for (const field of required) {
-    if (!body[field]) {
-      return NextResponse.json({ error: `Campo requerido: ${field}` }, { status: 422 });
-    }
+  const { nombre, negocio, email, telefono, password } = body;
+
+  if (!nombre || !negocio || !email || !telefono || !password) {
+    return NextResponse.json({ error: "Todos los campos son requeridos" }, { status: 422 });
+  }
+  if (password.length < 6) {
+    return NextResponse.json({ error: "La contraseña debe tener al menos 6 caracteres" }, { status: 422 });
   }
 
-  if (body.terminos !== true) {
-    return NextResponse.json(
-      { error: "Debés aceptar los términos y condiciones" },
-      { status: 422 }
-    );
-  }
-
-  /* ─── Guardar en Supabase ─── */
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-  const { error: dbError } = await supabase
-    .from("solicitudes")
-    .insert({
-      nombre:       body.nombre,
-      empresa:      body.empresa,
-      cuit:         body.cuit,
-      email:        body.email,
-      telefono:     body.telefono,
-      negocio:      body.empresa,
-      tipo_negocio: body.tipoNegocio,
-      provincia:    body.provincia,
-      volumen:      body.volumen,
-      mensaje:      body.mensaje ?? null,
-      estado:       "pendiente",
-    });
+  // Verificar que el email no exista ya
+  const { data: existing } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email.toLowerCase())
+    .maybeSingle();
 
-  if (dbError) {
-    console.error("[solicitudes] Supabase error:", dbError);
-    return NextResponse.json({ error: "Error al guardar la solicitud" }, { status: 500 });
+  if (existing) {
+    return NextResponse.json({ error: "Ya existe una cuenta con ese email" }, { status: 409 });
   }
 
-  /* ─── Emails ─── */
-  await Promise.allSettled([
-    enviarEmailNuevaSolicitud({
-      nombre:       body.nombre,
-      empresa:      body.empresa,
-      email:        body.email,
-      tipo_negocio: body.tipoNegocio,
-      provincia:    body.provincia,
-    }),
-    enviarEmailConfirmacionSolicitud({
-      nombre: body.nombre,
-      email:  body.email,
-    }),
+  // Crear usuario con acceso inmediato
+  const password_hash = bcrypt.hashSync(password, 10);
+
+  const { error: userError } = await supabase
+    .from("users")
+    .insert({
+      email:         email.toLowerCase(),
+      password_hash,
+      nombre,
+      empresa:       negocio,
+      rol:           "mayorista",
+      activo:        true,
+    });
+
+  if (userError) {
+    console.error("[solicitudes] Error creando usuario:", userError);
+    return NextResponse.json({ error: "Error al crear la cuenta" }, { status: 500 });
+  }
+
+  // Guardar en solicitudes para visibilidad del admin
+  await supabase.from("solicitudes").insert({
+    nombre,
+    empresa:  negocio,
+    email:    email.toLowerCase(),
+    telefono,
+    estado:   "aprobado",
+  });
+
+  // Emails en paralelo (no bloquean la respuesta)
+  Promise.allSettled([
+    enviarEmailNuevaSolicitud({ nombre, empresa: negocio, email, tipo_negocio: "mayorista", provincia: "" }),
+    enviarEmailConfirmacionSolicitud({ nombre, email }),
   ]);
 
   return NextResponse.json({ ok: true }, { status: 201 });
