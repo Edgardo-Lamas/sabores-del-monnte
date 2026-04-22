@@ -95,29 +95,32 @@ export default function TiendaView({ empresa, userName, userEmail }) {
   }, []);
 
   /* ── Order submission ── */
+  const WA_NUMBER = "541122499832";
+
   async function submitOrder() {
     setOrderLoading(true);
     try {
-      const res = await fetch("/api/pedidos", {
+      const total = cartItems.reduce((s, i) => s + i.precios[escalaIdx] * i.qty, 0);
+      const lineas = cartItems
+        .map((i) => `• ${i.nombre} — ${i.presentacion} × ${i.qty} = $${(i.precios[escalaIdx] * i.qty).toLocaleString("es-AR")}`)
+        .join("\n");
+      const msg = `Hola! Quiero confirmar el siguiente pedido mayorista:\n\n${lineas}\n\n📦 Escala: ${ESCALAS[escalaIdx].label}\n💰 *Total estimado: $${total.toLocaleString("es-AR")}*\n\nQuedo a la espera para coordinar entrega y pago. ¡Gracias!`;
+
+      fetch("/api/pedidos", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: cartItems.map((i) => ({
-            cartKey:       i.cartKey,
-            nombre:        i.nombre,
-            presentacion:  i.presentacion,
-            qty:           i.qty,
-            precioUnitario: i.precios[escalaIdx],
-            subtotal:      i.precios[escalaIdx] * i.qty,
+            nombre: i.nombre, presentacion: i.presentacion,
+            qty: i.qty, precioUnitario: i.precios[escalaIdx],
+            subtotal: i.precios[escalaIdx] * i.qty,
           })),
           escala: ESCALAS[escalaIdx].label,
-          total:  cartItems.reduce(
-            (s, i) => s + i.precios[escalaIdx] * i.qty,
-            0
-          ),
+          total,
         }),
-      });
-      if (!res.ok) throw new Error("Error al guardar el pedido");
+      }).catch(() => {});
+
+      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
       setOrderSuccess(true);
       setCartItems([]);
     } catch (err) {
