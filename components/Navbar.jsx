@@ -23,7 +23,7 @@ export default function Navbar() {
   const scrollY = useScrollPosition();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { items, drawerOpen, setDrawerOpen, updateQty, clearCart } = useCart();
-  const { data: session } = useSession();
+  const { data: session } = useSession() ?? {};
 
   const isScrolled = scrollY > 50;
   const totalItems = items.reduce((s, i) => s + i.qty, 0);
