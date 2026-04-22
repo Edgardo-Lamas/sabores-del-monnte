@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { enviarEmailNuevaSolicitud, enviarEmailConfirmacionSolicitud } from "@/lib/email";
 
 export async function POST(request) {
   let body;
@@ -52,7 +53,20 @@ export async function POST(request) {
     return NextResponse.json({ error: "Error al guardar la solicitud" }, { status: 500 });
   }
 
-  /* ─── TODO: email de confirmación con Resend (pendiente) ─── */
+  /* ─── Emails ─── */
+  await Promise.allSettled([
+    enviarEmailNuevaSolicitud({
+      nombre:       body.nombre,
+      empresa:      body.empresa,
+      email:        body.email,
+      tipo_negocio: body.tipoNegocio,
+      provincia:    body.provincia,
+    }),
+    enviarEmailConfirmacionSolicitud({
+      nombre: body.nombre,
+      email:  body.email,
+    }),
+  ]);
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }
