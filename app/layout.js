@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ConditionalFooter from "@/components/ConditionalFooter";
 import Providers from "@/components/Providers";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-heading",
@@ -39,6 +40,9 @@ export const metadata = {
     index: true,
     follow: true,
   },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -53,6 +57,7 @@ export default function RootLayout({ children }) {
           Ir al contenido principal
         </a>
 
+        <ServiceWorkerRegister />
         <Providers>
           <Navbar />
 

@@ -149,6 +149,19 @@ export default function AdminDashboard() {
             {lastUpdate && (
               <span style={{ fontSize: 11, color: "#374151" }}>Actualizado {lastUpdate}</span>
             )}
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "5px 12px", borderRadius: 4, border: "1px solid #2C2C2E",
+                background: "transparent", color: "#6B7280", fontSize: 12,
+                textDecoration: "none", cursor: "pointer",
+              }}
+            >
+              Ver sitio ↗
+            </a>
             <button
               onClick={fetchData}
               disabled={loading}
