@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTracking } from "@/lib/use-tracking";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,13 +28,18 @@ const fadeIn = {
   }),
 };
 
-export default function ProductDetailView({ product }) {
+export default function ProductDetailView({ product, userEmail, userName }) {
   const catLabel = categoryLabels[product.categoria] ?? product.categoria;
   const { addItem } = useCart();
+  const track = useTracking(userEmail, userName);
 
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [qty, setQty]                 = useState(1);
   const [added, setAdded]             = useState(false);
+
+  useEffect(() => {
+    track("producto_visto", { product_id: product.id, nombre: product.nombre });
+  }, [track, product.id, product.nombre]);
 
   const pres = product.presentaciones[selectedIdx];
 

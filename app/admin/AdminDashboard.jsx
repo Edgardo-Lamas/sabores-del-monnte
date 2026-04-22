@@ -7,7 +7,7 @@ import {
 } from "recharts";
 import {
   ShoppingBag, Users, Package, TrendingUp,
-  AlertTriangle, CheckCircle, Clock, RefreshCw,
+  AlertTriangle, CheckCircle, Clock, RefreshCw, Activity,
 } from "lucide-react";
 
 const ESTADO_COLORES = {
@@ -223,6 +223,13 @@ export default function AdminDashboard() {
                 sub={`${data.solicitudes.filter(s => s.estado === "aprobado").length} de ${data.solicitudes.length} solicitudes`}
                 color="#8B5CF6"
               />
+              <KpiCard
+                icon={Activity}
+                label="Mayoristas activos"
+                value={data.kpis.mayoristasActivos ?? 0}
+                sub="Últimos 7 días"
+                color="#10B981"
+              />
             </div>
 
             {/* Gráficos */}
@@ -398,6 +405,88 @@ export default function AdminDashboard() {
                   </tbody>
                 </table>
               </Panel>
+            </div>
+
+            {/* ─── Comunidad ─── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
+
+              {/* Mayoristas activos */}
+              <Panel
+                title="Mayoristas activos — 7 días"
+                action={<span style={{ fontSize: 11, color: "#4B5563" }}>{data.comunidad.mayoristasActivos.length} únicos</span>}
+              >
+                {data.comunidad.mayoristasActivos.length === 0 ? (
+                  <p style={{ fontSize: 12, color: "#374151", textAlign: "center", padding: "16px 0" }}>Sin actividad aún</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {data.comunidad.mayoristasActivos.map((m, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <p style={{ fontSize: 12, color: "#D1D5DB", margin: "0 0 2px", fontWeight: 500 }}>{m.nombre}</p>
+                          <p style={{ fontSize: 11, color: "#4B5563", margin: 0 }}>{m.email}</p>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <p style={{ fontSize: 12, color: "#10B981", fontWeight: 600, margin: "0 0 2px" }}>{m.visitas} visitas</p>
+                          <p style={{ fontSize: 11, color: "#374151", margin: 0 }}>
+                            {new Date(m.ultima).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Panel>
+
+              {/* Productos más vistos */}
+              <Panel
+                title="Productos más vistos — 7 días"
+                action={<span style={{ fontSize: 11, color: "#4B5563" }}>top 5</span>}
+              >
+                {data.comunidad.productosMasVistos.length === 0 ? (
+                  <p style={{ fontSize: 12, color: "#374151", textAlign: "center", padding: "16px 0" }}>Sin datos aún</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {data.comunidad.productosMasVistos.map((p, i) => {
+                      const max = data.comunidad.productosMasVistos[0].vistas;
+                      const pct = Math.round((p.vistas / max) * 100);
+                      return (
+                        <div key={i}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                            <span style={{ fontSize: 12, color: "#9CA3AF" }}>{p.nombre}</span>
+                            <span style={{ fontSize: 12, color: "#F59E0B", fontWeight: 600 }}>{p.vistas}</span>
+                          </div>
+                          <div style={{ height: 3, borderRadius: 2, background: "#2C2C2E" }}>
+                            <div style={{ height: "100%", borderRadius: 2, width: `${pct}%`, background: "#F59E0B" }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </Panel>
+
+              {/* Carritos activos */}
+              <Panel
+                title="Carritos activos — 7 días"
+                action={<span style={{ fontSize: 11, color: "#4B5563" }}>sin convertir</span>}
+              >
+                {data.comunidad.carritosActivos.length === 0 ? (
+                  <p style={{ fontSize: 12, color: "#374151", textAlign: "center", padding: "16px 0" }}>Sin carritos aún</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {data.comunidad.carritosActivos.map((c, i) => (
+                      <div key={i} style={{ padding: "8px 10px", borderRadius: 4, background: "#161618", border: "1px solid #2C2C2E" }}>
+                        <p style={{ fontSize: 12, color: "#D1D5DB", margin: "0 0 4px", fontWeight: 500 }}>{c.nombre || c.email}</p>
+                        <p style={{ fontSize: 11, color: "#6B7280", margin: 0 }}>
+                          {[...new Set(c.items)].slice(0, 3).join(" · ")}
+                          {c.items.length > 3 ? ` +${c.items.length - 3}` : ""}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Panel>
+
             </div>
 
             {/* Referencia operativa */}

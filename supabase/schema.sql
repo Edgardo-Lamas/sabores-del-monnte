@@ -135,3 +135,27 @@ values (
   'admin'
 )
 on conflict (email) do nothing;
+
+
+-- ─── MIGRACIÓN 003 — tabla de actividad de mayoristas ────────────
+-- Ejecutar en: Supabase → SQL Editor → New query → Run
+
+create table if not exists actividad (
+  id          uuid primary key default gen_random_uuid(),
+  user_email  text not null,
+  user_nombre text,
+  tipo        text not null
+              check (tipo in ('visita', 'producto_visto', 'carrito_agregado')),
+  payload     jsonb,
+  created_at  timestamptz default now()
+);
+
+create index if not exists actividad_email_idx      on actividad (user_email);
+create index if not exists actividad_tipo_idx       on actividad (tipo);
+create index if not exists actividad_created_at_idx on actividad (created_at desc);
+
+alter table actividad enable row level security;
+
+-- Solo service_role puede leer; anon puede insertar (el mayorista logueado usa anon key)
+create policy "insertar_actividad" on actividad
+  for insert to anon with check (true);

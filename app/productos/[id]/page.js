@@ -1,5 +1,6 @@
 import { products, categoryLabels } from "@/lib/products";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import ProductDetailView from "./ProductDetailView";
 
 export async function generateStaticParams() {
@@ -29,5 +30,13 @@ export default async function ProductDetailPage({ params }) {
   const product = products.find((p) => p.id === id);
   if (!product) notFound();
 
-  return <ProductDetailView product={product} />;
+  const session = await auth();
+
+  return (
+    <ProductDetailView
+      product={product}
+      userEmail={session?.user?.email ?? ""}
+      userName={session?.user?.name ?? ""}
+    />
+  );
 }

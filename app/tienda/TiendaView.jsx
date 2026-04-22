@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { signOut } from "next-auth/react";
+import { useTracking } from "@/lib/use-tracking";
 import { motion } from "framer-motion";
 import { ShoppingBag, LogOut, Tag, CheckCircle } from "lucide-react";
 import Image from "next/image";
@@ -38,7 +39,14 @@ const CATS = [
 
 /* ─── Component ─── */
 
-export default function TiendaView({ empresa, userName }) {
+export default function TiendaView({ empresa, userName, userEmail }) {
+  /* ── Tracking ── */
+  const track = useTracking(userEmail, userName);
+
+  useEffect(() => {
+    track("visita");
+  }, [track]);
+
   /* ── State ── */
   const [activeFilter,   setActiveFilter]   = useState("todos");
   const [cartItems,      setCartItems]       = useState([]);
@@ -54,6 +62,7 @@ export default function TiendaView({ empresa, userName }) {
 
   const addToCart = useCallback((product, presentacion) => {
     const cartKey = `${product.id}__${presentacion.label}`;
+    track("carrito_agregado", { product_id: product.id, nombre: product.nombre, presentacion: presentacion.label });
     setCartItems((prev) => {
       const existing = prev.find((i) => i.cartKey === cartKey);
       if (existing) {
@@ -73,7 +82,7 @@ export default function TiendaView({ empresa, userName }) {
         },
       ];
     });
-  }, []);
+  }, [track]);
 
   const updateQty = useCallback((cartKey, newQty) => {
     if (newQty < 1) {

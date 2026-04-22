@@ -12,6 +12,7 @@ export default async function TiendaPage() {
     <TiendaView
       empresa={session?.user?.empresa ?? ""}
       userName={session?.user?.name ?? ""}
+      userEmail={session?.user?.email ?? ""}
     />
   );
 }
