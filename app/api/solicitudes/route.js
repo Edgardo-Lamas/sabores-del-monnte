@@ -20,9 +20,10 @@ export async function POST(request) {
     return NextResponse.json({ error: "La contraseña debe tener al menos 6 caracteres" }, { status: 422 });
   }
 
+  // Operaciones de usuarios requieren service role key (bypasea RLS)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
   // Verificar que el email no exista ya
@@ -52,7 +53,7 @@ export async function POST(request) {
 
   if (userError) {
     console.error("[solicitudes] Error creando usuario:", userError);
-    return NextResponse.json({ error: "Error al crear la cuenta" }, { status: 500 });
+    return NextResponse.json({ error: "Error al crear la cuenta", detail: userError.message }, { status: 500 });
   }
 
   // Guardar en solicitudes para visibilidad del admin
