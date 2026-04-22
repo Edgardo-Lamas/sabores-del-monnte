@@ -215,6 +215,16 @@ export default function Navbar() {
             .join("\n");
           const descuento = esMayorista ? "\n🏷️ *Precio Club Origen aplicado*" : "";
           const msg = `Hola! Quiero realizar el siguiente pedido:\n\n${lineas}${descuento}\n\n💰 *Total estimado: $${total.toLocaleString("es-AR")}*\n\nPor favor confirmar disponibilidad y forma de pago. ¡Gracias!`;
+          fetch("/api/actividad", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tipo: "pedido_whatsapp",
+              user_email:  session?.user?.email ?? null,
+              user_nombre: session?.user?.name  ?? null,
+              payload: { total, items: items.length, mayorista: esMayorista },
+            }),
+          }).catch(() => {});
           window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
           clearCart();
           setDrawerOpen(false);

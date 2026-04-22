@@ -153,15 +153,6 @@ export default function AdminDashboard() {
     return () => clearInterval(id);
   }, [fetchData]);
 
-  // Tasa de aprobación calculada con datos reales
-  const tasaAprobacion = data
-    ? (() => {
-        const total    = data.solicitudes.length;
-        const aprobadas = data.solicitudes.filter(s => s.estado === "aprobado").length;
-        return total === 0 ? null : Math.round((aprobadas / total) * 100);
-      })()
-    : null;
-
   return (
     <div style={{
       minHeight: "100vh", background: "#111113", paddingTop: 72,
@@ -217,51 +208,91 @@ export default function AdminDashboard() {
         ) : data && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-            {/* KPIs */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
-              <KpiCard
-                icon={ShoppingBag}
-                label="Pedidos — 30 días"
-                value={data.kpis.totalPedidos}
-                color="#F59E0B"
-              />
-              <KpiCard
-                icon={TrendingUp}
-                label="Ingresos estimados"
-                value={`$${data.kpis.totalIngresos.toLocaleString("es-AR")}`}
-                sub="Suma precios base"
-                color="#10B981"
-              />
-              <KpiCard
-                icon={Users}
-                label="Solicitudes pendientes"
-                value={data.kpis.pendientes}
-                sub={data.kpis.pendientes > 5 ? "⚠ Revisar pronto" : "Al día"}
-                color={data.kpis.pendientes > 5 ? "#EF4444" : "#3B82F6"}
-                alert={data.kpis.pendientes > 5}
-              />
-              <KpiCard
-                icon={Package}
-                label="Stock bajo alerta"
-                value={data.kpis.stockBajo}
-                sub={data.kpis.stockBajo > 0 ? "Reabastecer" : "Stock OK"}
-                color={data.kpis.stockBajo > 0 ? "#EF4444" : "#10B981"}
-                alert={data.kpis.stockBajo > 0}
-              />
-              <KpiCard
-                icon={CheckCircle}
-                label="Tasa de aprobación"
-                value={tasaAprobacion !== null ? `${tasaAprobacion}%` : "—"}
-                sub={`${data.solicitudes.filter(s => s.estado === "aprobado").length} de ${data.solicitudes.length} solicitudes`}
-                color="#8B5CF6"
-              />
-              <KpiCard
-                icon={Activity}
-                label="Mayoristas activos"
-                value={data.kpis.mayoristasActivos ?? 0}
-                sub="Últimos 7 días"
-                color="#10B981"
-              />
+            {/* ─── Analytics — Actividad del sitio ─── */}
+            <Panel title="Actividad del sitio esta semana">
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 16 }}>
+                {[
+                  { label: "Visitas hoy",          value: data.kpis.visitasHoy,          sub: `${data.kpis.visitasUnicasHoy} personas únicas`,  color: "#3B82F6" },
+                  { label: "Visitas esta semana",   value: data.kpis.visitas7d,           sub: `${data.kpis.visitasUnicas7d} personas únicas`,   color: "#3B82F6" },
+                  { label: "Pedidos por WhatsApp",  value: data.kpis.pedidosWA7d,         sub: `${data.kpis.pedidosWAHoy} hoy`,                  color: "#22C55E" },
+                  { label: "Nuevos mayoristas",     value: data.kpis.registros7d,         sub: `${data.kpis.registrosTotal} en total`,            color: "#F59E0B" },
+                  { label: "Mayoristas activos",    value: data.kpis.mayoristasActivos,   sub: "Visitaron esta semana",                           color: "#8B5CF6" },
+                  { label: "Conversión",            value: `${data.kpis.conversionPct}%`, sub: "Visitantes → pedido WA",                         color: "#10B981" },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: "#161618", border: "1px solid #2C2C2E", borderRadius: 5, padding: "12px 14px" }}>
+                    <p style={{ fontSize: 11, color: "#6B7280", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.04em" }}>{k.label}</p>
+                    <p style={{ fontSize: 22, fontWeight: 700, color: k.color, margin: "0 0 3px", letterSpacing: "-0.02em" }}>{k.value}</p>
+                    <p style={{ fontSize: 11, color: "#374151", margin: 0 }}>{k.sub}</p>
+                  </div>
+                ))}
+              </div>
+              <p style={{ fontSize: 11, color: "#4B5563", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.04em" }}>Visitas diarias — últimos 14 días</p>
+              <ResponsiveContainer width="100%" height={150}>
+                <BarChart data={data.visitasPorDia} margin={{ top: 0, right: 8, left: -28, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1F1F21" />
+                  <XAxis dataKey="fecha" tick={{ fill: "#4B5563", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: "#4B5563", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <Bar dataKey="visitas" name="Visitas" fill="#3B82F6" radius={[2,2,0,0]} opacity={0.8} />
+                  <Bar dataKey="unicos"  name="Únicos"  fill="#8B5CF6" radius={[2,2,0,0]} opacity={0.6} />
+                </BarChart>
+              </ResponsiveContainer>
+              <div style={{ display: "flex", gap: 14, marginTop: 6 }}>
+                {[{ color: "#3B82F6", label: "Visitas totales" }, { color: "#8B5CF6", label: "Visitantes únicos" }].map((l, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <div style={{ width: 8, height: 8, background: l.color, borderRadius: 2 }} />
+                    <span style={{ fontSize: 11, color: "#4B5563" }}>{l.label}</span>
+                  </div>
+                ))}
+              </div>
+            </Panel>
+
+            {/* Páginas y productos */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <Panel title="Páginas más visitadas — 7 días">
+                {!(data.paginasMasVisitadas?.length) ? (
+                  <p style={{ fontSize: 12, color: "#374151" }}>Sin datos aún</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {data.paginasMasVisitadas.map((p, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: 11, color: "#4B5563", width: 16, textAlign: "right" }}>{i + 1}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                            <span style={{ fontSize: 12, color: "#D1D5DB", fontWeight: 500 }}>{p.page}</span>
+                            <span style={{ fontSize: 11, color: "#6B7280" }}>{p.visitas}</span>
+                          </div>
+                          <div style={{ height: 3, background: "#1F1F21", borderRadius: 2 }}>
+                            <div style={{ height: "100%", borderRadius: 2, background: "#3B82F6", width: `${Math.round((p.visitas / data.paginasMasVisitadas[0].visitas) * 100)}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Panel>
+              <Panel title="Productos más vistos — 7 días">
+                {!(data.productosMasVistos?.length) ? (
+                  <p style={{ fontSize: 12, color: "#374151" }}>Sin datos aún</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {data.productosMasVistos.map((p, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: 11, color: "#4B5563", width: 16, textAlign: "right" }}>{i + 1}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                            <span style={{ fontSize: 12, color: "#D1D5DB", fontWeight: 500 }}>{p.nombre}</span>
+                            <span style={{ fontSize: 11, color: "#6B7280" }}>{p.vistas} vistas</span>
+                          </div>
+                          <div style={{ height: 3, background: "#1F1F21", borderRadius: 2 }}>
+                            <div style={{ height: "100%", borderRadius: 2, background: "#F59E0B", width: `${Math.round((p.vistas / data.productosMasVistos[0].vistas) * 100)}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Panel>
             </div>
 
             {/* Gráficos */}

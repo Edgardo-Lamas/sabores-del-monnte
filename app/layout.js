@@ -2,6 +2,7 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
+import PageTracker from "@/components/PageTracker";
 import ConditionalFooter from "@/components/ConditionalFooter";
 import Providers from "@/components/Providers";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
@@ -59,6 +60,7 @@ export default function RootLayout({ children }) {
 
         <ServiceWorkerRegister />
         <Providers>
+          <PageTracker />
           <ConditionalNavbar />
 
           <main id="main-content" className="flex-1" tabIndex={-1}>

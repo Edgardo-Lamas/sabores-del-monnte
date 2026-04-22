@@ -74,6 +74,16 @@ export default function SolicitudForm() {
       }
 
       track("registro_mayorista", { negocio: data.negocio });
+      fetch("/api/actividad", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: "registro",
+          user_email:  data.email.trim().toLowerCase(),
+          user_nombre: data.nombre,
+          payload: { negocio: data.negocio },
+        }),
+      }).catch(() => {});
 
       // Auto-login inmediato
       const result = await signIn("credentials", {

@@ -7,111 +7,132 @@ export async function GET() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-  const now = new Date();
-  const hace30dias = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const hace7dias  = new Date(now -  7 * 24 * 60 * 60 * 1000).toISOString();
+  const now       = new Date();
+  const hace30d   = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const hace7d    = new Date(now -  7 * 24 * 60 * 60 * 1000).toISOString();
+  const hoy       = new Date(now.setHours(0, 0, 0, 0)).toISOString();
 
   const [
-    { data: pedidos },
     { data: solicitudes },
-    { data: stock },
-    { data: pedidosRecientes },
-    { data: actividad7d },
+    { data: actividad30d },
   ] = await Promise.all([
-    supabase.from("pedidos").select("id,total,estado,created_at").gte("created_at", hace30dias),
-    supabase.from("solicitudes").select("id,nombre,empresa,email,tipo_negocio,estado,created_at").order("created_at", { ascending: false }).limit(20),
-    supabase.from("stock").select("*").order("cantidad", { ascending: true }),
-    supabase.from("pedidos").select("id,total,estado,cliente_nombre,created_at").order("created_at", { ascending: false }).limit(10),
-    supabase.from("actividad").select("user_email,user_nombre,tipo,payload,created_at").gte("created_at", hace7dias).order("created_at", { ascending: false }),
+    supabase
+      .from("solicitudes")
+      .select("id,nombre,empresa,email,estado,created_at")
+      .order("created_at", { ascending: false })
+      .limit(30),
+    supabase
+      .from("actividad")
+      .select("user_email,user_nombre,tipo,payload,page,session_id,created_at")
+      .gte("created_at", hace30d)
+      .order("created_at", { ascending: false }),
   ]);
 
-  // Pedidos por día (últimos 14 días)
-  const pedidosPorDia = [];
-  for (let i = 13; i >= 0; i--) {
-    const fecha = new Date(now - i * 24 * 60 * 60 * 1000);
-    const label = fecha.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" });
-    const delDia = (pedidos || []).filter(p =>
-      new Date(p.created_at).toDateString() === fecha.toDateString()
-    );
-    pedidosPorDia.push({
-      fecha: label,
-      pedidos: delDia.length,
-      ingresos: delDia.reduce((s, p) => s + Number(p.total || 0), 0),
-    });
+  const act = actividad30d || [];
+  const act7d = act.filter(a => a.created_at >= hace7d);
+  const actHoy = act.filter(a => a.created_at >= hoy);
+
+  /* ── Pageviews ── */
+  const pageviews = act.filter(a => a.tipo === "pageview");
+  const pageviews7d = act7d.filter(a => a.tipo === "pageview");
+  const pageviewsHoy = actHoy.filter(a => a.tipo === "pageview");
+
+  // Visitantes únicos por session_id o user_email
+  function uniqueVisitors(list) {
+    const ids = new Set(list.map(a => a.session_id || a.user_email).filter(Boolean));
+    return ids.size;
   }
 
-  // Distribución por estado de pedidos
-  const estadosPedidos = ["recibido","en_preparacion","enviado","entregado","cancelado"]
-    .map(estado => ({
-      estado,
-      label: { recibido:"Recibido", en_preparacion:"En preparación", enviado:"Enviado", entregado:"Entregado", cancelado:"Cancelado" }[estado],
-      cantidad: (pedidos || []).filter(p => p.estado === estado).length,
-    }))
-    .filter(e => e.cantidad > 0);
+  // Visitas por día (últimos 14 días)
+  const visitasPorDia = [];
+  for (let i = 13; i >= 0; i--) {
+    const fecha = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+    const label = fecha.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" });
+    const del_dia = pageviews.filter(a =>
+      new Date(a.created_at).toDateString() === fecha.toDateString()
+    );
+    const uniquesDia = new Set(del_dia.map(a => a.session_id || a.user_email).filter(Boolean)).size;
+    visitasPorDia.push({ fecha: label, visitas: del_dia.length, unicos: uniquesDia });
+  }
 
-  // Distribución solicitudes por tipo de negocio
-  const tiposNegocio = [...new Set((solicitudes || []).map(s => s.tipo_negocio).filter(Boolean))];
-  const solicitudesPorTipo = tiposNegocio.map(tipo => ({
-    tipo,
-    cantidad: (solicitudes || []).filter(s => s.tipo_negocio === tipo).length,
-  }));
+  // Páginas más visitadas (últimos 7 días)
+  const paginasMap = {};
+  pageviews7d.forEach(a => {
+    const p = a.page || "/";
+    if (!paginasMap[p]) paginasMap[p] = 0;
+    paginasMap[p]++;
+  });
+  const paginasMasVisitadas = Object.entries(paginasMap)
+    .map(([page, visitas]) => ({ page, visitas }))
+    .sort((a, b) => b.visitas - a.visitas)
+    .slice(0, 6);
 
-  // ── Comunidad — métricas de actividad (últimos 7 días) ──
-  const actividad = actividad7d || [];
-
-  // Mayoristas activos (visitaron en 7 días, únicos por email)
-  const visitasEmails = [...new Set(
-    actividad.filter(a => a.tipo === "visita").map(a => a.user_email)
-  )];
-  const mayoristasActivos = visitasEmails.map(email => {
-    const eventos = actividad.filter(a => a.user_email === email);
-    const nombre  = eventos[0]?.user_nombre || email;
-    const ultima  = eventos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]?.created_at;
-    const visitas = eventos.filter(a => a.tipo === "visita").length;
-    return { email, nombre, visitas, ultima };
-  }).sort((a, b) => b.visitas - a.visitas);
-
-  // Productos más vistos
-  const vistosMap = {};
-  actividad.filter(a => a.tipo === "producto_visto").forEach(a => {
-    const id = a.payload?.product_id;
+  /* ── Productos más vistos ── */
+  const productosMap = {};
+  act7d.filter(a => a.tipo === "producto_visto").forEach(a => {
+    const id     = a.payload?.product_id;
     const nombre = a.payload?.nombre || id;
     if (!id) return;
-    if (!vistosMap[id]) vistosMap[id] = { product_id: id, nombre, vistas: 0 };
-    vistosMap[id].vistas++;
+    if (!productosMap[id]) productosMap[id] = { nombre, vistas: 0 };
+    productosMap[id].vistas++;
   });
-  const productosMasVistos = Object.values(vistosMap)
+  const productosMasVistos = Object.values(productosMap)
     .sort((a, b) => b.vistas - a.vistas)
     .slice(0, 5);
 
-  // Carritos agregados (únicos por email, sin conversión — proxy de abandono)
-  const carritosMap = {};
-  actividad.filter(a => a.tipo === "carrito_agregado").forEach(a => {
-    const email = a.user_email;
-    if (!carritosMap[email]) carritosMap[email] = { email, nombre: a.user_nombre, items: [] };
-    carritosMap[email].items.push(a.payload?.nombre);
-  });
-  const carritosActivos = Object.values(carritosMap).slice(0, 5);
+  /* ── Pedidos WhatsApp ── */
+  const pedidosWA7d    = act7d.filter(a => a.tipo === "pedido_whatsapp").length;
+  const pedidosWAHoy   = actHoy.filter(a => a.tipo === "pedido_whatsapp").length;
+
+  /* ── Registros ── */
+  const registros7d    = act7d.filter(a => a.tipo === "registro").length;
+  const registrosTotal = (solicitudes || []).length;
+
+  /* ── Mayoristas activos (visitaron en 7d, con sesión) ── */
+  const emailsMayoristas = [...new Set(
+    act7d
+      .filter(a => a.tipo === "pageview" && a.user_email)
+      .map(a => a.user_email)
+  )];
+  const mayoristasActivos = emailsMayoristas.map(email => {
+    const eventos = act7d.filter(a => a.user_email === email);
+    const nombre  = eventos[0]?.user_nombre || email;
+    const visitas = eventos.filter(a => a.tipo === "pageview").length;
+    const ultima  = eventos[0]?.created_at;
+    return { email, nombre, visitas, ultima };
+  }).sort((a, b) => b.visitas - a.visitas);
+
+  /* ── Tasa de conversión: visitantes únicos → pedidos WA ── */
+  const visitantesUnicos7d = uniqueVisitors(pageviews7d);
+  const conversionPct = visitantesUnicos7d > 0
+    ? Math.round((pedidosWA7d / visitantesUnicos7d) * 100)
+    : 0;
+
+  /* ── Tasa de aprobación solicitudes ── */
+  const totalSol     = (solicitudes || []).length;
+  const aprobadas    = (solicitudes || []).filter(s => s.estado === "aprobado").length;
+  const tasaAprobacion = totalSol > 0 ? Math.round((aprobadas / totalSol) * 100) : null;
 
   return NextResponse.json({
     kpis: {
-      totalPedidos:   (pedidos || []).length,
-      totalIngresos:  (pedidos || []).reduce((s, p) => s + Number(p.total || 0), 0),
-      pendientes:     (solicitudes || []).filter(s => s.estado === "pendiente").length,
-      stockBajo:      (stock || []).filter(s => s.cantidad <= s.alerta_minima).length,
-      entregados:     (pedidos || []).filter(p => p.estado === "entregado").length,
+      visitasHoy:       pageviewsHoy.length,
+      visitasUnicasHoy: uniqueVisitors(pageviewsHoy),
+      visitas7d:        pageviews7d.length,
+      visitasUnicas7d:  visitantesUnicos7d,
+      pedidosWAHoy,
+      pedidosWA7d,
+      registros7d,
+      registrosTotal,
       mayoristasActivos: mayoristasActivos.length,
+      conversionPct,
+      tasaAprobacion,
     },
-    pedidosPorDia,
-    estadosPedidos,
-    solicitudesPorTipo,
-    solicitudes:      solicitudes || [],
-    stock:            stock || [],
-    pedidosRecientes: pedidosRecientes || [],
+    visitasPorDia,
+    paginasMasVisitadas,
+    productosMasVistos,
+    solicitudes:       (solicitudes || []).slice(0, 10),
     comunidad: {
       mayoristasActivos,
-      productosMasVistos,
-      carritosActivos,
     },
   });
 }
