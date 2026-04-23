@@ -15,7 +15,7 @@ export async function POST(request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
 
-    await supabase.from("actividad").insert({
+    const { error } = await supabase.from("actividad").insert({
       user_email:  user_email  || null,
       user_nombre: user_nombre || null,
       tipo,
@@ -23,6 +23,11 @@ export async function POST(request) {
       page:       page       || null,
       session_id: session_id || null,
     });
+
+    if (error) {
+      console.error("[actividad] Supabase error:", error);
+      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch {

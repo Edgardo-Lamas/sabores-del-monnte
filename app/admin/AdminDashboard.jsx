@@ -2,21 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import {
-  ShoppingBag, Users, Package, TrendingUp,
-  AlertTriangle, CheckCircle, Clock, RefreshCw, Activity,
+  Package, TrendingUp,
+  CheckCircle, Clock, RefreshCw,
 } from "lucide-react";
-
-const ESTADO_COLORES = {
-  recibido:       "#3B82F6",
-  en_preparacion: "#F59E0B",
-  enviado:        "#8B5CF6",
-  entregado:      "#22C55E",
-  cancelado:      "#EF4444",
-};
 
 const ESTADO_LABELS = {
   pendiente:      { label: "Pendiente",       bg: "#F59E0B22", color: "#F59E0B" },
@@ -39,30 +31,6 @@ function Badge({ estado }) {
     }}>
       {s.label}
     </span>
-  );
-}
-
-function KpiCard({ icon: Icon, label, value, sub, color, alert }) {
-  return (
-    <div style={{
-      background: "#1C1C1E", border: `1px solid ${alert ? "#EF444433" : "#2C2C2E"}`,
-      borderRadius: 6, padding: "14px 16px",
-    }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-        <span style={{ fontSize: 12, color: "#6B7280", fontWeight: 500, letterSpacing: "0.01em" }}>{label}</span>
-        <div style={{
-          width: 28, height: 28, borderRadius: "50%",
-          background: `${color}18`,
-          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-        }}>
-          <Icon size={13} color={color} strokeWidth={2} />
-        </div>
-      </div>
-      <p style={{ fontSize: 22, fontWeight: 700, color: "#F9FAFB", margin: "0 0 4px", letterSpacing: "-0.02em" }}>
-        {value}
-      </p>
-      {sub && <p style={{ fontSize: 11, color: "#4B5563", margin: 0 }}>{sub}</p>}
-    </div>
   );
 }
 
@@ -295,140 +263,29 @@ export default function AdminDashboard() {
               </Panel>
             </div>
 
-            {/* Gráficos */}
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
-
-              <Panel title="Actividad — últimos 14 días">
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={data.pedidosPorDia} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1F1F21" />
-                    <XAxis dataKey="fecha" tick={{ fill: "#4B5563", fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: "#4B5563", fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip content={<ChartTooltip />} />
-                    <Line type="monotone" dataKey="pedidos" name="pedidos" stroke="#F59E0B" strokeWidth={1.5} dot={false} activeDot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="ingresos" name="ingresos" stroke="#3B82F6" strokeWidth={1.5} dot={false} strokeDasharray="4 2" />
-                  </LineChart>
-                </ResponsiveContainer>
-                <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
-                  {[{ color: "#F59E0B", label: "Pedidos" }, { color: "#3B82F6", label: "Ingresos" }].map((l, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <div style={{ width: 8, height: 2, background: l.color, borderRadius: 1 }} />
-                      <span style={{ fontSize: 11, color: "#4B5563" }}>{l.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </Panel>
-
-              <Panel title="Estados de pedidos">
-                {data.estadosPedidos.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 180, color: "#374151", fontSize: 12 }}>
-                    Sin pedidos aún
-                  </div>
-                ) : (
-                  <>
-                    <ResponsiveContainer width="100%" height={150}>
-                      <PieChart>
-                        <Pie data={data.estadosPedidos} dataKey="cantidad" nameKey="label"
-                          cx="50%" cy="50%" innerRadius={40} outerRadius={62} paddingAngle={2}>
-                          {data.estadosPedidos.map((e, i) => (
-                            <Cell key={i} fill={ESTADO_COLORES[e.estado] || "#6B7280"} />
-                          ))}
-                        </Pie>
-                        <Tooltip contentStyle={{ background: "#111113", border: "1px solid #2C2C2E", borderRadius: 4, fontSize: 11 }} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
-                      {data.estadosPedidos.map((e, i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <div style={{ width: 7, height: 7, borderRadius: "50%", background: ESTADO_COLORES[e.estado] }} />
-                            <span style={{ fontSize: 11, color: "#6B7280" }}>{e.label}</span>
-                          </div>
-                          <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 600 }}>{e.cantidad}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </Panel>
-            </div>
-
-            {/* Solicitudes + Stock */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-
-              <Panel title="Club Origen — tipo de negocio">
-                {data.solicitudesPorTipo.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 120, color: "#374151", fontSize: 12 }}>
-                    Sin solicitudes
-                  </div>
-                ) : (
-                  <ResponsiveContainer width="100%" height={160}>
-                    <BarChart data={data.solicitudesPorTipo} layout="vertical" margin={{ left: 8, right: 8 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1F1F21" horizontal={false} />
-                      <XAxis type="number" tick={{ fill: "#4B5563", fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis type="category" dataKey="tipo" tick={{ fill: "#6B7280", fontSize: 10 }} axisLine={false} tickLine={false} width={80} />
-                      <Tooltip contentStyle={{ background: "#111113", border: "1px solid #2C2C2E", borderRadius: 4, fontSize: 11 }} />
-                      <Bar dataKey="cantidad" name="Solicitudes" fill="#3B82F6" radius={[0, 3, 3, 0]} maxBarSize={14} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
-              </Panel>
-
-              <Panel title="Stock actual">
-                {data.stock.length === 0 ? (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 120, color: "#374151", fontSize: 12 }}>
-                    Sin registros
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 180, overflowY: "auto" }}>
-                    {data.stock.map((s) => {
-                      const pct   = Math.min(100, (s.cantidad / Math.max(s.alerta_minima * 3, 1)) * 100);
-                      const color = s.cantidad === 0 ? "#EF4444" : s.cantidad <= s.alerta_minima ? "#F59E0B" : "#22C55E";
-                      return (
-                        <div key={s.id}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                            <span style={{ fontSize: 11, color: "#9CA3AF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "70%" }}>
-                              {s.product_id} · {s.presentacion}
-                            </span>
-                            <span style={{ fontSize: 11, color, fontWeight: 600, flexShrink: 0, marginLeft: 8 }}>
-                              {s.cantidad} u.
-                              {s.cantidad <= s.alerta_minima && <AlertTriangle size={10} style={{ marginLeft: 4, display: "inline" }} />}
-                            </span>
-                          </div>
-                          <div style={{ height: 3, borderRadius: 2, background: "#2C2C2E" }}>
-                            <div style={{ height: "100%", borderRadius: 2, width: `${pct}%`, background: color, transition: "width 0.4s" }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </Panel>
-            </div>
-
-            {/* Tablas */}
+            {/* Solicitudes recientes + Mayoristas activos */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
 
               <Panel
                 title="Solicitudes recientes"
-                action={<span style={{ fontSize: 11, color: "#4B5563" }}>últimas 20</span>}
+                action={<span style={{ fontSize: 11, color: "#4B5563" }}>últimas 10</span>}
               >
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                   <thead>
                     <tr style={{ color: "#4B5563", textAlign: "left" }}>
                       <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Nombre</th>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Tipo</th>
+                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Negocio</th>
                       <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Estado</th>
                       <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Fecha</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.solicitudes.length === 0 ? (
+                    {(data.solicitudes || []).length === 0 ? (
                       <tr><td colSpan={4} style={{ paddingTop: 20, textAlign: "center", color: "#374151", fontSize: 12 }}>Sin solicitudes</td></tr>
                     ) : data.solicitudes.map((s) => (
                       <tr key={s.id} style={{ borderBottom: "1px solid #1F1F21" }}>
-                        <td style={{ padding: "7px 8px 7px 0", color: "#D1D5DB", maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.nombre}</td>
-                        <td style={{ padding: "7px 8px 7px 0", color: "#6B7280", textTransform: "capitalize" }}>{s.tipo_negocio || "—"}</td>
+                        <td style={{ padding: "7px 8px 7px 0", color: "#D1D5DB", maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.nombre}</td>
+                        <td style={{ padding: "7px 8px 7px 0", color: "#6B7280", maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.empresa || "—"}</td>
                         <td style={{ padding: "7px 8px 7px 0" }}><Badge estado={s.estado} /></td>
                         <td style={{ padding: "7px 0", color: "#374151" }}>
                           {new Date(s.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" })}
@@ -439,41 +296,6 @@ export default function AdminDashboard() {
                 </table>
               </Panel>
 
-              <Panel
-                title="Últimos pedidos"
-                action={<span style={{ fontSize: 11, color: "#4B5563" }}>últimos 10</span>}
-              >
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                  <thead>
-                    <tr style={{ color: "#4B5563", textAlign: "left" }}>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Cliente</th>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Total</th>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Estado</th>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Fecha</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.pedidosRecientes.length === 0 ? (
-                      <tr><td colSpan={4} style={{ paddingTop: 20, textAlign: "center", color: "#374151", fontSize: 12 }}>Sin pedidos aún</td></tr>
-                    ) : data.pedidosRecientes.map((p) => (
-                      <tr key={p.id} style={{ borderBottom: "1px solid #1F1F21" }}>
-                        <td style={{ padding: "7px 8px 7px 0", color: "#D1D5DB", maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.cliente_nombre || "—"}</td>
-                        <td style={{ padding: "7px 8px 7px 0", color: "#F59E0B", fontWeight: 600 }}>${Number(p.total).toLocaleString("es-AR")}</td>
-                        <td style={{ padding: "7px 8px 7px 0" }}><Badge estado={p.estado} /></td>
-                        <td style={{ padding: "7px 0", color: "#374151" }}>
-                          {new Date(p.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Panel>
-            </div>
-
-            {/* ─── Comunidad ─── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
-
-              {/* Mayoristas activos */}
               <Panel
                 title="Mayoristas activos — 7 días"
                 action={<span style={{ fontSize: 11, color: "#4B5563" }}>{data.comunidad.mayoristasActivos.length} únicos</span>}
@@ -494,56 +316,6 @@ export default function AdminDashboard() {
                             {new Date(m.ultima).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" })}
                           </p>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Panel>
-
-              {/* Productos más vistos */}
-              <Panel
-                title="Productos más vistos — 7 días"
-                action={<span style={{ fontSize: 11, color: "#4B5563" }}>top 5</span>}
-              >
-                {data.comunidad.productosMasVistos.length === 0 ? (
-                  <p style={{ fontSize: 12, color: "#374151", textAlign: "center", padding: "16px 0" }}>Sin datos aún</p>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {data.comunidad.productosMasVistos.map((p, i) => {
-                      const max = data.comunidad.productosMasVistos[0].vistas;
-                      const pct = Math.round((p.vistas / max) * 100);
-                      return (
-                        <div key={i}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                            <span style={{ fontSize: 12, color: "#9CA3AF" }}>{p.nombre}</span>
-                            <span style={{ fontSize: 12, color: "#F59E0B", fontWeight: 600 }}>{p.vistas}</span>
-                          </div>
-                          <div style={{ height: 3, borderRadius: 2, background: "#2C2C2E" }}>
-                            <div style={{ height: "100%", borderRadius: 2, width: `${pct}%`, background: "#F59E0B" }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </Panel>
-
-              {/* Carritos activos */}
-              <Panel
-                title="Carritos activos — 7 días"
-                action={<span style={{ fontSize: 11, color: "#4B5563" }}>sin convertir</span>}
-              >
-                {data.comunidad.carritosActivos.length === 0 ? (
-                  <p style={{ fontSize: 12, color: "#374151", textAlign: "center", padding: "16px 0" }}>Sin carritos aún</p>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {data.comunidad.carritosActivos.map((c, i) => (
-                      <div key={i} style={{ padding: "8px 10px", borderRadius: 4, background: "#161618", border: "1px solid #2C2C2E" }}>
-                        <p style={{ fontSize: 12, color: "#D1D5DB", margin: "0 0 4px", fontWeight: 500 }}>{c.nombre || c.email}</p>
-                        <p style={{ fontSize: 11, color: "#6B7280", margin: 0 }}>
-                          {[...new Set(c.items)].slice(0, 3).join(" · ")}
-                          {c.items.length > 3 ? ` +${c.items.length - 3}` : ""}
-                        </p>
                       </div>
                     ))}
                   </div>
