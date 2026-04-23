@@ -270,30 +270,43 @@ export default function AdminDashboard() {
                 title="Solicitudes recientes"
                 action={<span style={{ fontSize: 11, color: "#4B5563" }}>últimas 10</span>}
               >
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                  <thead>
-                    <tr style={{ color: "#4B5563", textAlign: "left" }}>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Nombre</th>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Negocio</th>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Estado</th>
-                      <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E" }}>Fecha</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(data.solicitudes || []).length === 0 ? (
-                      <tr><td colSpan={4} style={{ paddingTop: 20, textAlign: "center", color: "#374151", fontSize: 12 }}>Sin solicitudes</td></tr>
-                    ) : data.solicitudes.map((s) => (
-                      <tr key={s.id} style={{ borderBottom: "1px solid #1F1F21" }}>
-                        <td style={{ padding: "7px 8px 7px 0", color: "#D1D5DB", maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.nombre}</td>
-                        <td style={{ padding: "7px 8px 7px 0", color: "#6B7280", maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.empresa || "—"}</td>
-                        <td style={{ padding: "7px 8px 7px 0" }}><Badge estado={s.estado} /></td>
-                        <td style={{ padding: "7px 0", color: "#374151" }}>
-                          {new Date(s.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" })}
-                        </td>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ color: "#4B5563", textAlign: "left" }}>
+                        <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E", whiteSpace: "nowrap" }}>Nombre</th>
+                        <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E", whiteSpace: "nowrap" }}>Negocio</th>
+                        <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E", whiteSpace: "nowrap" }}>Email</th>
+                        <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E", whiteSpace: "nowrap" }}>WhatsApp</th>
+                        <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E", whiteSpace: "nowrap" }}>Estado</th>
+                        <th style={{ paddingBottom: 8, fontWeight: 500, borderBottom: "1px solid #2C2C2E", whiteSpace: "nowrap" }}>Fecha</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {(data.solicitudes || []).length === 0 ? (
+                        <tr><td colSpan={6} style={{ paddingTop: 20, textAlign: "center", color: "#374151", fontSize: 12 }}>Sin solicitudes</td></tr>
+                      ) : data.solicitudes.map((s) => (
+                        <tr key={s.id} style={{ borderBottom: "1px solid #1F1F21" }}>
+                          <td style={{ padding: "7px 12px 7px 0", color: "#D1D5DB", whiteSpace: "nowrap" }}>{s.nombre}</td>
+                          <td style={{ padding: "7px 12px 7px 0", color: "#6B7280", whiteSpace: "nowrap" }}>{s.empresa || "—"}</td>
+                          <td style={{ padding: "7px 12px 7px 0", whiteSpace: "nowrap" }}>
+                            <a href={`mailto:${s.email}`} style={{ color: "#3B82F6", textDecoration: "none" }}>{s.email}</a>
+                          </td>
+                          <td style={{ padding: "7px 12px 7px 0", whiteSpace: "nowrap" }}>
+                            {s.telefono
+                              ? <a href={`https://wa.me/${s.telefono.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer" style={{ color: "#22C55E", textDecoration: "none" }}>{s.telefono}</a>
+                              : <span style={{ color: "#374151" }}>—</span>
+                            }
+                          </td>
+                          <td style={{ padding: "7px 12px 7px 0" }}><Badge estado={s.estado} /></td>
+                          <td style={{ padding: "7px 0", color: "#374151", whiteSpace: "nowrap" }}>
+                            {new Date(s.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </Panel>
 
               <Panel

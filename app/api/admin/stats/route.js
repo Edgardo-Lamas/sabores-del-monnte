@@ -18,7 +18,7 @@ export async function GET() {
   ] = await Promise.all([
     supabase
       .from("solicitudes")
-      .select("id,nombre,empresa,email,estado,created_at")
+      .select("id,nombre,empresa,email,telefono,estado,created_at")
       .order("created_at", { ascending: false })
       .limit(30),
     supabase
