@@ -4,7 +4,7 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/tienda", "/tienda/", "/admin", "/admin/", "/api/"],
+        disallow: ["/admin", "/admin/", "/api/"],
       },
     ],
     sitemap: "https://saboresdemonte.com.ar/sitemap.xml",

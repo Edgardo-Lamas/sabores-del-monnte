@@ -24,7 +24,7 @@ const inputBase = {
 export default function LoginForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl  = searchParams.get("callbackUrl") || "/tienda";
+  const callbackUrl  = searchParams.get("callbackUrl") || "/productos";
 
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");

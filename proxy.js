@@ -6,25 +6,6 @@ export default auth((req) => {
   const isLoggedIn = !!session;
   const rol = session?.user?.rol;
 
-  /* ── Proteger /tienda/* ── */
-  if (nextUrl.pathname.startsWith("/tienda")) {
-    if (!isLoggedIn) {
-      const loginUrl = new URL("/login", nextUrl);
-      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-    if (rol === "pending") {
-      return NextResponse.redirect(
-        new URL("/distribuidores?status=pending", nextUrl)
-      );
-    }
-    if (rol !== "mayorista" && rol !== "admin") {
-      const loginUrl = new URL("/login", nextUrl);
-      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
   /* ── Proteger /admin/* (excepto manifest) ── */
   if (
     nextUrl.pathname.startsWith("/admin") &&
@@ -46,5 +27,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/tienda/:path*", "/admin/:path*", "/login", "/start"],
+  matcher: ["/admin/:path*", "/login", "/start"],
 };

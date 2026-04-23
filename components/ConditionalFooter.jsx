@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Footer from "./Footer";
 
 /* Rutas donde el footer no debe mostrarse */
-const HIDDEN_PATHS = ["/tienda", "/login", "/admin"];
+const HIDDEN_PATHS = ["/login", "/admin"];
 
 export default function ConditionalFooter() {
   const pathname = usePathname();

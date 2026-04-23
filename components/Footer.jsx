@@ -87,7 +87,7 @@ export default function Footer() {
               ))}
               <li>
                 <Link
-                  href="/tienda"
+                  href="/acceso-mayorista"
                   className="text-amber/70 text-sm hover:text-gold transition-colors duration-200"
                   style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
                 >

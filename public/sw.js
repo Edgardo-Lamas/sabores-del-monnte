@@ -31,7 +31,6 @@ self.addEventListener("fetch", (e) => {
     e.request.method !== "GET" ||
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/admin") ||
-    url.pathname.startsWith("/tienda") ||
     url.pathname.startsWith("/login")
   ) {
     return;

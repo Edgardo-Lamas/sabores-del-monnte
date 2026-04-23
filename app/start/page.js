@@ -12,7 +12,7 @@ export default async function StartPage() {
 
   const rol = session.user?.rol;
   if (rol === "admin")     redirect("/admin");
-  if (rol === "mayorista") redirect("/tienda");
+  if (rol === "mayorista") redirect("/productos");
 
   redirect("/login");
 }
