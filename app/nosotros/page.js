@@ -52,13 +52,15 @@
  * ══════════════════════════════════════════════════════════════
  */
 
-import HeroNosotros    from "@/components/nosotros/HeroNosotros";
-import HistoriaSection from "@/components/nosotros/HistoriaSection";
-import TerritorioSection from "@/components/nosotros/TerritorioSection";
-import ProcesoSection  from "@/components/nosotros/ProcesoSection";
-import ValoresSection  from "@/components/nosotros/ValoresSection";
-import RespaldoSection from "@/components/nosotros/RespaldoSection";
-import CTANosotros     from "@/components/nosotros/CTANosotros";
+import HeroNosotros       from "@/components/nosotros/HeroNosotros";
+import HistoriaSection    from "@/components/nosotros/HistoriaSection";
+import TerritorioSection  from "@/components/nosotros/TerritorioSection";
+import ProcesoSection     from "@/components/nosotros/ProcesoSection";
+import GaleriaProduccion  from "@/components/nosotros/GaleriaProduccion";
+import ValoresSection     from "@/components/nosotros/ValoresSection";
+import FeriasSection      from "@/components/nosotros/FeriasSection";
+import RespaldoSection    from "@/components/nosotros/RespaldoSection";
+import CTANosotros        from "@/components/nosotros/CTANosotros";
 
 export const metadata = {
   title: "Nosotros | Sabores de Monte — Productor apícola de Obispo Trejo",
@@ -116,7 +118,9 @@ export default function NosotrosPage() {
       <HistoriaSection />
       <TerritorioSection />
       <ProcesoSection />
+      <GaleriaProduccion />
       <ValoresSection />
+      <FeriasSection />
       <RespaldoSection />
       <CTANosotros />
     </>

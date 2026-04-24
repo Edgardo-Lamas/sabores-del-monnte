@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, LogOut } from "lucide-react";
@@ -42,16 +43,14 @@ export default function Navbar() {
 
             {/* ─── Logo ─── */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-full border border-amber/40 flex items-center justify-center group-hover:border-gold transition-colors duration-300">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    className="text-amber group-hover:text-gold transition-colors duration-300">
-                    <path d="M12 2L17.196 5.5V12.5L12 16L6.804 12.5V5.5L12 2Z"
-                      stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-                    <path d="M12 16L17.196 19.5V22L12 22L6.804 22V19.5L12 16Z"
-                      stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" opacity="0.5" />
-                  </svg>
-                </div>
+              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-amber/40 group-hover:border-gold transition-colors duration-300 flex-shrink-0">
+                <Image
+                  src="/img/logo/logo-1.jpg"
+                  alt="Sabores de Monte"
+                  fill
+                  sizes="40px"
+                  className="object-cover object-top"
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-white-soft text-lg tracking-wide group-hover:text-gold transition-colors duration-300"
