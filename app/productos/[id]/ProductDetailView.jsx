@@ -59,6 +59,14 @@ export default function ProductDetailView({ product, userEmail, userName }) {
   function handleAdd() {
     const precioFinal = isMayorista ? precioClub : pres.precioBase;
     for (let i = 0; i < qty; i++) addItem(product, pres, precioFinal);
+    track("carrito_agregado", {
+      product_id:   product.id,
+      nombre:       product.nombre,
+      presentacion: pres.label,
+      qty,
+      precioFinal,
+      mayorista:    isMayorista,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }

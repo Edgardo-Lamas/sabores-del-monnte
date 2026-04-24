@@ -8,14 +8,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { track } from "@vercel/analytics";
+
+const TIPO_NEGOCIO_OPTIONS = [
+  { value: "",              label: "Tipo de negocio" },
+  { value: "distribuidora", label: "Distribuidora" },
+  { value: "restaurante",   label: "Restaurante / Gastronomía" },
+  { value: "tienda",        label: "Tienda / Dietética / Gourmet" },
+  { value: "supermercado",  label: "Supermercado / Almacén" },
+  { value: "otro",          label: "Otro" },
+];
 
 const schema = z.object({
-  nombre:   z.string().min(2, "Nombre requerido"),
-  negocio:  z.string().min(2, "Nombre del negocio requerido"),
-  email:    z.string().email("Email inválido"),
-  telefono: z.string().min(7, "Teléfono requerido"),
-  password: z.string().min(6, "Mínimo 6 caracteres"),
+  nombre:       z.string().min(2, "Nombre requerido"),
+  negocio:      z.string().min(2, "Nombre del negocio requerido"),
+  email:        z.string().email("Email inválido"),
+  telefono:     z.string().min(7, "Teléfono requerido"),
+  provincia:    z.string().min(2, "Provincia requerida"),
+  tipo_negocio: z.string().min(1, "Seleccioná el tipo de negocio"),
+  password:     z.string().min(6, "Mínimo 6 caracteres"),
 });
 
 const inputBase = {
@@ -64,7 +74,15 @@ export default function SolicitudForm() {
       const res = await fetch("/api/solicitudes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          nombre:       data.nombre,
+          negocio:      data.negocio,
+          email:        data.email,
+          telefono:     data.telefono,
+          provincia:    data.provincia,
+          tipo_negocio: data.tipo_negocio,
+          password:     data.password,
+        }),
       });
 
       const json = await res.json().catch(() => ({}));
@@ -73,15 +91,18 @@ export default function SolicitudForm() {
         throw new Error(json.error || "Error al registrarse");
       }
 
-      track("registro_mayorista", { negocio: data.negocio });
       fetch("/api/actividad", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tipo: "registro",
+          tipo:        "registro",
           user_email:  data.email.trim().toLowerCase(),
           user_nombre: data.nombre,
-          payload: { negocio: data.negocio },
+          payload: {
+            negocio:      data.negocio,
+            provincia:    data.provincia,
+            tipo_negocio: data.tipo_negocio,
+          },
         }),
       }).catch(() => {});
 
@@ -145,6 +166,31 @@ export default function SolicitudForm() {
             onFocus={(e) => { e.target.style.border = inputFocus; }}
             onBlur={(e)  => { e.target.style.border = errors.telefono ? inputError : inputBase.border; }}
           />
+        </Field>
+
+        <Field label="Provincia" required error={errors.provincia?.message}>
+          <input
+            {...register("provincia")}
+            placeholder="Córdoba"
+            style={{ ...inputBase, border: errors.provincia ? inputError : inputBase.border }}
+            onFocus={(e) => { e.target.style.border = inputFocus; }}
+            onBlur={(e)  => { e.target.style.border = errors.provincia ? inputError : inputBase.border; }}
+          />
+        </Field>
+
+        <Field label="Tipo de negocio" required error={errors.tipo_negocio?.message}>
+          <select
+            {...register("tipo_negocio")}
+            style={{ ...inputBase, border: errors.tipo_negocio ? inputError : inputBase.border }}
+            onFocus={(e) => { e.target.style.border = inputFocus; }}
+            onBlur={(e)  => { e.target.style.border = errors.tipo_negocio ? inputError : inputBase.border; }}
+          >
+            {TIPO_NEGOCIO_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value} disabled={o.value === ""}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </Field>
 
         <Field label="Contraseña" required error={errors.password?.message}>

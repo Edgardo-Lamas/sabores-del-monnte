@@ -11,9 +11,9 @@ export async function POST(request) {
     return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
   }
 
-  const { nombre, negocio, email, telefono, password } = body;
+  const { nombre, negocio, email, telefono, provincia, tipo_negocio, password } = body;
 
-  if (!nombre || !negocio || !email || !telefono || !password) {
+  if (!nombre || !negocio || !email || !telefono || !provincia || !tipo_negocio || !password) {
     return NextResponse.json({ error: "Todos los campos son requeridos" }, { status: 422 });
   }
   if (password.length < 6) {
@@ -59,15 +59,17 @@ export async function POST(request) {
   // Guardar en solicitudes para visibilidad del admin
   await supabase.from("solicitudes").insert({
     nombre,
-    empresa:  negocio,
-    email:    email.toLowerCase(),
+    empresa:      negocio,
+    email:        email.toLowerCase(),
     telefono,
-    estado:   "aprobado",
+    provincia,
+    tipo_negocio,
+    estado:       "aprobado",
   });
 
   // Emails en paralelo (no bloquean la respuesta)
   Promise.allSettled([
-    enviarEmailNuevaSolicitud({ nombre, empresa: negocio, email, tipo_negocio: "mayorista", provincia: "" }),
+    enviarEmailNuevaSolicitud({ nombre, empresa: negocio, email, tipo_negocio, provincia }),
     enviarEmailConfirmacionSolicitud({ nombre, email }),
   ]);
 

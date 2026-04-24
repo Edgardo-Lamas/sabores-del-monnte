@@ -221,7 +221,18 @@ export default function Navbar() {
               tipo: "pedido_whatsapp",
               user_email:  session?.user?.email ?? null,
               user_nombre: session?.user?.name  ?? null,
-              payload: { total, items: items.length, mayorista: esMayorista },
+              payload: {
+            total,
+            mayorista: esMayorista,
+            productos: items.map((i) => ({
+              id:           i.id,
+              nombre:       i.nombre,
+              presentacion: i.presentacion,
+              qty:          i.qty,
+              precioFinal:  i.precioFinal,
+              subtotal:     i.precioFinal * i.qty,
+            })),
+          },
             }),
           }).catch(() => {});
           window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
