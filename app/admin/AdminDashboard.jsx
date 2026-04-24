@@ -9,6 +9,7 @@ import {
   Package, TrendingUp,
   CheckCircle, Clock, RefreshCw,
 } from "lucide-react";
+import InsightsTab from "./InsightsTab";
 
 const ESTADO_LABELS = {
   pendiente:      { label: "Pendiente",       bg: "#F59E0B22", color: "#F59E0B" },
@@ -67,6 +68,7 @@ function Panel({ title, children, action }) {
 }
 
 export default function AdminDashboard() {
+  const [tab, setTab]             = useState("panel");
   const [data, setData]           = useState(null);
   const [loading, setLoading]     = useState(true);
   const [lastUpdate, setLastUpdate] = useState(null);
@@ -129,7 +131,7 @@ export default function AdminDashboard() {
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 20px 48px" }}>
 
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <div>
             <h1 style={{ fontSize: 16, fontWeight: 600, color: "#F9FAFB", margin: "0 0 2px" }}>
               Panel de control
@@ -169,11 +171,37 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {loading && !data ? (
+        {/* Tabs */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid #2C2C2E", paddingBottom: 0 }}>
+          {[
+            { key: "panel",    label: "Panel" },
+            { key: "insights", label: "Insights" },
+          ].map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              style={{
+                padding: "8px 18px", fontSize: 13, fontWeight: 500, cursor: "pointer",
+                background: "transparent", border: "none",
+                borderBottom: tab === t.key ? "2px solid #C8793A" : "2px solid transparent",
+                color: tab === t.key ? "#F9FAFB" : "#4B5563",
+                marginBottom: -1, transition: "color 0.2s",
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "insights" && <InsightsTab />}
+
+        {tab === "panel" && loading && !data && (
           <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}>
             <RefreshCw size={20} color="#374151" style={{ animation: "spin 1s linear infinite" }} />
           </div>
-        ) : data && (
+        )}
+
+        {tab === "panel" && !loading && data && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
             {/* ─── Analytics — Actividad del sitio ─── */}
