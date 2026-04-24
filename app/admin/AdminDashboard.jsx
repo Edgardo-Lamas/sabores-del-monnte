@@ -10,6 +10,7 @@ import {
   CheckCircle, Clock, RefreshCw,
 } from "lucide-react";
 import InsightsTab from "./InsightsTab";
+import AgenteTab from "./AgenteTab";
 
 const ESTADO_LABELS = {
   pendiente:      { label: "Pendiente",       bg: "#F59E0B22", color: "#F59E0B" },
@@ -176,6 +177,7 @@ export default function AdminDashboard() {
           {[
             { key: "panel",    label: "Panel" },
             { key: "insights", label: "Insights" },
+            { key: "agente",   label: "✦ Agente" },
           ].map((t) => (
             <button
               key={t.key}
@@ -194,6 +196,7 @@ export default function AdminDashboard() {
         </div>
 
         {tab === "insights" && <InsightsTab />}
+        {tab === "agente"   && <AgenteTab />}
 
         {tab === "panel" && loading && !data && (
           <div style={{ display: "flex", justifyContent: "center", paddingTop: 80 }}>
