@@ -43,13 +43,13 @@ export default function Navbar() {
 
             {/* ─── Logo ─── */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-amber/40 group-hover:border-gold transition-colors duration-300 flex-shrink-0">
+              <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 border border-amber/40 group-hover:border-gold transition-colors duration-300">
                 <Image
-                  src="/img/logo/logo-1.jpg"
+                  src="/img/logo/logo-2.svg"
                   alt="Sabores de Monte"
                   fill
                   sizes="40px"
-                  className="object-cover object-top"
+                  className="object-cover object-[50%_35%]"
                 />
               </div>
               <div className="flex flex-col">

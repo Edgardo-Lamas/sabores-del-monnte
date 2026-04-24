@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Mail, Phone } from "lucide-react";
 
@@ -30,24 +31,14 @@ export default function Footer() {
           {/* Col 1 — Brand */}
           <div>
             <Link href="/" className="inline-flex items-center gap-3 group mb-4">
-              <div
-                className="w-9 h-9 rounded-full border flex items-center justify-center shrink-0"
-                style={{ borderColor: "rgba(200, 121, 58, 0.4)" }}
-              >
-                <svg
-                  width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  className="text-amber group-hover:text-gold transition-colors duration-300"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M12 2L17.196 5.5V12.5L12 16L6.804 12.5V5.5L12 2Z"
-                    stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"
-                  />
-                  <path
-                    d="M12 16L17.196 19.5V22L12 22L6.804 22V19.5L12 16Z"
-                    stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" opacity="0.5"
-                  />
-                </svg>
+              <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 border border-amber/40 group-hover:border-gold transition-colors duration-300">
+                <Image
+                  src="/img/logo/logo-2.svg"
+                  alt="Sabores de Monte"
+                  fill
+                  sizes="36px"
+                  className="object-cover object-[50%_35%]"
+                />
               </div>
               <span
                 className="text-white-soft text-lg group-hover:text-gold transition-colors duration-300"
