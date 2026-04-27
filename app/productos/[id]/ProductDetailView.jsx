@@ -100,9 +100,8 @@ export default function ProductDetailView({ product, userEmail, userName }) {
           {/* Image */}
           <motion.div variants={fadeIn} initial="hidden" animate="visible" custom={0.1}>
             <div
-              className="relative w-full overflow-hidden rounded-[4px]"
+              className="relative w-full overflow-hidden rounded-[4px] aspect-square lg:aspect-3/4"
               style={{
-                aspectRatio: "3/4",
                 background: "#1A1510",
                 border: "1px solid rgba(200, 121, 58, 0.15)",
               }}

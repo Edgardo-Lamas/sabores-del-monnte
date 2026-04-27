@@ -371,7 +371,7 @@ export default function DistribuidoresPage() {
               animate={stepperInView ? "visible" : "hidden"}
               className="grid grid-cols-1 md:grid-cols-3 gap-8 relative"
             >
-              {STEPS.map((step, i) => (
+              {STEPS.map((step) => (
                 <motion.div
                   key={step.number}
                   variants={cardVariants}
@@ -474,7 +474,7 @@ export default function DistribuidoresPage() {
             initial="hidden"
             animate={formInView ? "visible" : "hidden"}
             custom={0.3}
-            className="rounded-[4px] p-8 md:p-10"
+            className="rounded-[4px] p-5 sm:p-8 md:p-10"
             style={{
               background: "#1A1510",
               border: "1px solid rgba(200, 121, 58, 0.3)",
